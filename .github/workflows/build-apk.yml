@@ -2,21 +2,26 @@ name: Gerar APK de arquivo ZIP
 
 on:
   push:
-    branches: [ "main" ] # Executa sempre que houver push na branch main
-  workflow_dispatch: # Permite rodar o processo manualmente pelo painel do GitHub
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Baixa o código do repositório (onde está o seu ZIP)
+    # 1. Baixa o código garantindo que arquivos grandes e binários venham junto
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        lfs: true
 
-    # 2. Descompacta o seu arquivo ZIP
+    # 2. Mostra os arquivos na tela (para conferência no log) e descompacta
     - name: Unzip project
       run: |
+        echo "=== Arquivos encontrados no repositório ==="
+        ls -la
+        echo "==========================================="
         unzip projeto.zip -d projeto_extraido
         if [ -d "projeto_extraido" ]; then
           mv projeto_extraido/* . 2>/dev/null || true
@@ -24,7 +29,7 @@ jobs:
           rm -rf projeto_extraido
         fi
 
-    # 3. Configura o Java (necessário para compilar Android)
+    # 3. Configura o Java
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -36,7 +41,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # 5. Compila o projeto e gera o APK em modo Debug
+    # 5. Compila o projeto e gera o APK
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
