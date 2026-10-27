@@ -1,0 +1,41 @@
+================================================================================
+GUIA - COMO BAIXAR O APK PELO GITHUB ACTIONS
+================================================================================
+REPOSITÓRIO: https://github.com/MassayoshiOgawa/FakeStream
+BRANCH: main
+WORKFLOW: Gerar APK
+================================================================================
+
+
+## PASSO 1: SUBSTITUIR O projeto.zip
+1. Pegue o arquivo `projeto_novo.zip` (gerado)
+2. Renomeie para `projeto.zip`
+3. Substitua o `projeto.zip` atual na raiz do repositório FakeStream
+4. Faça commit e push para `main`
+
+
+## PASSO 2: AGUARDAR A COMPILAÇÃO
+1. Abra https://github.com/MassayoshiOgawa/FakeStream/actions
+2. Clique no workflow "Gerar APK"
+3. Aguarde o job "build" ficar com status verde (pode levar 3-6 minutos)
+
+
+## PASSO 3: BAIXAR O APK
+1. Ainda na tela do run (execução) que acabou de compilar
+2. Role até a seção "Artifacts"
+3. Clique em `app-debug-apk` para baixar o ZIP
+4. Extraia o ZIP baixado
+5. Dentro terá `app-debug.apk`
+
+
+## DICAS
+- Se for rodar em dispositivo físico, ative "Instalação de apps desconhecidos"
+- Se já tiver a versão antiga instalada e der erro na instalação, desinstale a antiga
+- O APK é debug, ideal para testes
+- Os artifacts expiram após 90 dias (padrão GitHub)
+
+
+## VERIFICAÇÃO RÁPIDA
+Após extrair o projeto.zip no CI, deve ter na raiz: gradlew, app/, settings.gradle.kts, build.gradle.kts
+O workflow compila: ./gradlew assembleDebug
+Saída: app/build/outputs/apk/debug/app-debug.apk

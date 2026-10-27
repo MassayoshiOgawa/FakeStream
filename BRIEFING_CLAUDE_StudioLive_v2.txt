@@ -1,0 +1,1704 @@
+﻿================================================================================
+BRIEFING TÉCNICO E VISUAL — RECONSTRUÇÃO TOTAL DO APP "STUDIOLIVE"
+Documento destinado ao Claude (ou qualquer IA/subagente que assuma o projeto)
+Versão: 2.0  |  Data de referência: 26/10/2026  |  Idioma do app: Português (BR)
+================================================================================
+
+LEIA ESTE DOCUMENTO INTEIRO ANTES DE ESCREVER UMA ÚNICA LINHA DE CÓDIGO.
+Ele é a fonte única da verdade do projeto. Nada aqui é sugestão: é requisito.
+
+
+================================================================================
+0. COMO USAR ESTE DOCUMENTO
+================================================================================
+
+0.1 Para quem é
+---------------
+Este documento é para uma IA que NUNCA viu o projeto e que vai:
+  (a) reconstruir o app Android do zero;
+  (b) entregar um `projeto.zip` pronto para substituição direta;
+  (c) entregar uma pasta `StudioLive/` com o código-fonte organizado;
+  (d) entregar um `DOCUMENTACAO_StudioLive.txt` para manutenção futura.
+
+0.2 Ordem de leitura obrigatória
+--------------------------------
+  1) Seção 1 (Regra Zero — imagens)
+  2) Seção 4 (Dispositivo alvo — Motorola G84 5G)
+  3) Seção 9 (Arquitetura)
+  4) Seção 10 (Design System)
+  5) Seção 11 (Anatomia da tela AO VIVO)
+  6) Seção 12 (Inventário de botões e toggles)
+  7) Seção 13 (Motor de layout responsivo)
+  8) Seções 14 a 19 (funcionalidades, persistência, permissões, idioma, config)
+  9) Seções 20 a 31 (stack, build, entrega, validação, GitHub, documentação)
+
+0.3 Regra de ouro
+-----------------
+Se qualquer requisito deste documento entrar em conflito com o "bom senso" de
+design genérico, ESTE DOCUMENTO VENCE. Se entrar em conflito com as imagens
+anexadas, AS IMAGENS VENCEM (ver seção 1). Se algo estiver genuinamente
+ambíguo, PARE e pergunte ao usuário antes de inventar.
+
+
+================================================================================
+1. REGRA ZERO — AS DUAS IMAGENS SÃO A VERDADE ABSOLUTA
+================================================================================
+
+1.1 O que o usuário vai anexar
+------------------------------
+O usuário vai anexar DUAS imagens nesta conversa:
+
+  IMAGEM 1 — "TELA PRINCIPAL / ORIGINAL"
+    É a tela que aparece quando o app está em uso (a live rodando).
+    É a referência PRIMÁRIA de layout, posição, tamanho, hierarquia, cores,
+    ícones, espaçamento e profundidade de TODA a tela AO VIVO.
+    Atenção especial obrigatória a:
+      - todos os botões do lado DIREITO da tela, tanto os de CIMA quanto os
+        de BAIXO;
+      - o bloco superior (avatar, nome, título da live, selo AO VIVO,
+        contador de espectadores);
+      - o bloco inferior (campo de comentário, barra de ações, navegação);
+      - a forma como o vídeo/câmera ocupa o fundo (full-bleed? recortado?
+        com gradiente? com bordas arredondadas?).
+
+  IMAGEM 2 — "COMENTÁRIOS + ESPECTADORES"
+    É referência EXCLUSIVA para dois pontos:
+      (a) APARÊNCIA VISUAL E TÉCNICA DOS COMENTÁRIOS:
+          como cada comentário é desenhado, tipografia, cores, opacidade,
+          fundo, alinhamento, espaçamento entre linhas, largura máxima,
+          altura de cada item, posição vertical na tela, quantidade visível,
+          fade/scroll, formato do nome do autor, formato do texto.
+      (b) VISUAL ESTÉTICO DO CONTADOR DE ESPECTADORES:
+          formato do badge, ícone, tipografia, cor, opacidade, formato do
+          número (ex.: "1,2 mil" / "1.234" / "12,4K"), posição relativa.
+    A IMAGEM 2 NÃO deve ser usada para redesenhar o resto da tela.
+
+1.2 Se as imagens NÃO estiverem anexadas
+----------------------------------------
+PARE IMEDIATAMENTE. Não chute, não reaproveite o layout atual, não invente.
+Responda apenas:
+
+  "Não recebi as duas imagens de referência. Envie a IMAGEM 1 (tela principal
+   da live) e a IMAGEM 2 (comentários + espectadores) para que eu possa
+   reconstruir a interface com fidelidade total. Sem elas eu não começo."
+
+1.3 Como medir as imagens (processo obrigatório)
+------------------------------------------------
+Não use "olhômetro". Faça engenharia reversa numérica.
+
+PASSO 1 — Dimensione a imagem
+  Abra a imagem e anote a resolução real em pixels (largura x altura).
+  Ex.: 1080 x 2400.
+
+PASSO 2 — Descubra o fator de conversão
+  O app será desenhado em dp. A conversão é proporcional à largura:
+      dp = px_na_imagem * (LARGURA_REF_DP / LARGURA_IMAGEM_PX)
+  onde LARGURA_REF_DP = 411f (ver seção 4.3).
+  Ex.: elemento com 216 px de largura numa imagem de 1080 px ->
+       216 * (411 / 1080) = 82,2 dp.
+
+PASSO 3 — Preencha a MATRIZ DE MEDIDAS (obrigatória)
+  Crie a tabela abaixo e preencha TODOS os elementos visíveis da IMAGEM 1.
+  Ela deve ser entregue dentro do `DOCUMENTACAO_StudioLive.txt` (seção 11
+  desse documento), porque é ela que permite uma IA futura reconstruir
+  qualquer coisa sem adivinhar.
+
+  +----+----------------------+------+------+--------+--------+--------+--------+--------+-------------+
+  | #  | Elemento             |  X   |  Y   | Larg.  | Alt.   |  Raio  |  Cor   | Alfa   | Observações |
+  |    |                      | (px) | (px) |  (px)  | (px)   |  (dp)  | (hex)  |  (%)   |             |
+  +----+----------------------+------+------+--------+--------+--------+--------+--------+-------------+
+  | 01 | Avatar               |      |      |        |        |        |        |        |             |
+  | 02 | Nome exibido         |      |      |        |        |        |        |        |             |
+  | 03 | Título da live       |      |      |        |        |        |        |        |             |
+  | 04 | Selo "AO VIVO"       |      |      |        |        |        |        |        |             |
+  | 05 | Espectadores         |      |      |        |        |        |        |        |             |
+  | 06 | Botão fechar (X)     |      |      |        |        |        |        |        |             |
+  | 07 | Botão 1 (topo dir.)  |      |      |        |        |        |        |        |             |
+  | 08 | Botão 2 (topo dir.)  |      |      |        |        |        |        |        |             |
+  | 09 | Botão 3 (topo dir.)  |      |      |        |        |        |        |        |             |
+  | 10 | Botão 4 (topo dir.)  |      |      |        |        |        |        |        |             |
+  | 11 | Botão 5 (base dir.)  |      |      |        |        |        |        |        |             |
+  | 12 | Botão 6 (base dir.)  |      |      |        |        |        |        |        |             |
+  | 13 | Comentário (item)    |      |      |        |        |        |        |        |             |
+  | 14 | Campo comentário     |      |      |        |        |        |        |        |             |
+  | 15 | Barra inferior       |      |      |        |        |        |        |        |             |
+  | .. | ...                  |      |      |        |        |        |        |        |             |
+  +----+----------------------+------+------+--------+--------+--------+--------+--------+-------------+
+
+PASSO 4 — Amostre as cores
+  Use conta-gotas na imagem. Anote o HEX de cada superfície e de cada texto.
+  Preencha a tabela de cores do projeto (seção 10.1) com os valores reais
+  extraídos da imagem — não com cores "parecidas".
+
+PASSO 5 — Converta tudo para dp e registre em `DesignTokens.kt`
+  Nenhum número mágico solto no meio de um Composable. Todos os valores
+  medidos moram em `core/constants/DesignTokens.kt`.
+
+1.4 Critério objetivo de "100% fiel"
+------------------------------------
+Considere fiel quando, colocando o app ao lado da IMAGEM 1 no mesmo tamanho
+de tela, for possível responder "sim" a TODAS estas perguntas:
+  [ ] Os mesmos elementos existem, na mesma ordem?
+  [ ] Cada elemento está na mesma posição relativa (+-2 dp)?
+  [ ] Os tamanhos batem (+-2 dp)?
+  [ ] As cores batem (delta de canal < 6/255)?
+  [ ] Os raios de canto batem (+-2 dp)?
+  [ ] As opacidades de fundo batem (+-5%)?
+  [ ] A tipografia tem o mesmo peso, tamanho relativo e alinhamento?
+  [ ] Os ícones são os mesmos (ou equivalentes visuais inequívocos)?
+  [ ] A hierarquia visual (o que chama atenção primeiro) é a mesma?
+  [ ] Não há NENHUM texto em inglês visível?
+
+
+================================================================================
+2. MISSÃO
+================================================================================
+
+Refazer do ZERO o app Android "StudioLive" (Kotlin + Jetpack Compose) com:
+  - interface de transmissão ao vivo icônica, 100% fiel à IMAGEM 1;
+  - comentários e contador de espectadores fiéis à IMAGEM 2;
+  - 100% em Português do Brasil;
+  - todos os botões da live controláveis por toggle nas configurações;
+  - troca de câmera (frontal/traseira) e mute/desmute de microfone;
+  - nome exibido, título da live e avatar editáveis nas configurações;
+  - persistência total das configurações;
+  - pedido de permissões na inicialização;
+  - arquitetura modular e documentada para expansão futura por outra IA;
+  - entrega em `projeto.zip` + pasta `StudioLive/` + `DOCUMENTACAO_StudioLive.txt`.
+
+O layout ATUAL do projeto deve ser IGNORADO. Ele existe apenas como
+referência de stack técnica e de funcionamento de build. Nada do desenho
+atual deve ser reaproveitado visualmente.
+
+
+================================================================================
+3. O QUE MANTER E O QUE JOGAR FORA DO PROJETO ATUAL
+================================================================================
+
+3.1 MANTER (é o que faz o build passar no GitHub Actions)
+---------------------------------------------------------
+  - Estrutura Gradle: `settings.gradle.kts`, `build.gradle.kts` raiz,
+    `app/build.gradle.kts`, `gradle.properties`, Gradle Wrapper 8.7.
+  - Versões: AGP 8.5.2 / Kotlin 1.9.24 / KSP 1.9.24-1.0.20 / Gradle 8.7 /
+    compileSdk 34 / minSdk 24 / targetSdk 34 / JVM target 17.
+  - Compose BOM 2024.09.03 + Compose Compiler 1.5.14.
+  - `themes.xml` com parent `android:style/Theme.Material.NoActionBar`.
+  - `AndroidManifest.xml` com `android:screenOrientation="portrait"`,
+    `enableEdgeToEdge()`, ícone em `@drawable/ic_launcher`.
+  - `gradle.properties` com limites de memória baixos (ver seção 21).
+  - `gradlew` com finais de linha LF.
+  - `.github/workflows/build-apk.yml` — NÃO ALTERAR (ver seção 24).
+
+3.2 JOGAR FORA (não reaproveitar)
+---------------------------------
+  - `ui/live/overlay/InstagramLiveOverlay.kt` — layout antigo, em inglês,
+    com offsets absolutos. Deve ser substituído integralmente.
+  - `ui/live/overlay/LiveOverlayScale.kt` — escala baseada em 360dp; será
+    substituída pelo motor de layout da seção 13.
+  - `ui/home/HomeScreen.kt` — tela inicial antiga (pode ser refeita).
+  - Qualquer texto em inglês na UI (`LIVE`, `Comment`, `Buy`, `joined` etc.).
+  - Qualquer espaçamento hardcoded em px.
+  - Código morto, blocos comentados, `TODO` vago, trechos de conversa de IA
+    deixados dentro do arquivo (isso já aconteceu antes e quebrou o build).
+
+
+================================================================================
+4. DISPOSITIVO ALVO — MOTOROLA G84 5G (ÚNICO ALVO)
+================================================================================
+
+4.1 Especificações de referência
+--------------------------------
+  Modelo............: Motorola Moto G84 5G (XT2347)
+  Tela..............: 6,55" pOLED, FHD+
+  Resolução.........: 1080 x 2400 px
+  Proporção.........: 20:9
+  Densidade.........: ~402 ppi
+  Densidade lógica..: tipicamente 2,625x (bucket xxhdpi / 420 dpi)
+  Orientação do app.: RETRATO, travada (portrait)
+  Câmera frontal....: furo (punch-hole) CENTRALIZADO no topo
+  Borda.............: edge-to-edge (conteúdo desenha atrás da status bar)
+  Navegação.........: gestos (barra de navegação fina) OU botões virtuais
+
+4.2 Implicações obrigatórias
+----------------------------
+  - NUNCA desenhe conteúdo importante em cima do furo central da câmera.
+  - Use `WindowInsets` (statusBars, navigationBars, displayCutout) para
+    posicionar os blocos. Nada de padding fixo tipo "top = 50.dp".
+  - O app é RETRATO. Não implemente layout de paisagem.
+  - O preview da câmera deve preencher a tela inteira (full-bleed),
+    com `PreviewView` em `ScaleType.FILL_CENTER` (equivalente a centerCrop).
+  - Todo teste visual deve ser feito nessa proporção 20:9.
+
+4.3 Largura de referência em dp
+-------------------------------
+  Se o aparelho reportar densidade 2,625x:
+      1080 / 2,625 = 411,4 dp  ->  411 x 914 dp
+  Se reportar 2,75x (possível em algumas ROMs):
+      1080 / 2,75  = 392,7 dp  ->  393 x 873 dp
+
+  ADOTE COMO BASE DE PROJETO: 411 dp de largura x 914 dp de altura.
+  E, OBRIGATORIAMENTE, o app deve funcionar proporcionalmente caso o
+  aparelho reporte 393 dp. Para isso, todo dimensionamento horizontal
+  deriva de `maxWidth` em runtime:
+
+      val scale = maxWidthDp / 411f   // ex.: 393/411 = 0,956
+      fun d(v: Float) = (v * scale).dp
+
+  Regra: `scale` deve ser calculado em UM único lugar
+  (`LiveLayoutMetrics`), nunca repetido em cada componente.
+
+4.4 Áreas seguras (estimativas de partida — confirmar no aparelho)
+------------------------------------------------------------------
+  Status bar........: ~28 dp
+  Câmera (punch-hole): centro do topo, ~28 dp de diâmetro, ~10 dp abaixo
+                       da borda física
+  Barra de navegação.: ~24 dp (gestos) ou ~48 dp (botões virtuais)
+  Área útil vertical.: ~914 - 28 - 24 = ~862 dp (com gestos)
+
+  Nenhum texto ou botão deve ficar a menos de 8 dp dessas bordas.
+
+
+================================================================================
+5. PRINCÍPIOS DO NOVO DESIGN ("icônico")
+================================================================================
+
+O usuário pediu explicitamente um visual NOVO e ICÔNICO, não um clone
+genérico. Traduza isso para estas decisões:
+
+5.1 Linguagem visual
+  - Fundo = vídeo da câmera em full-bleed (não há "tela de fundo").
+  - Legibilidade garantida por SCRIM: gradiente vertical preto translúcido
+    no topo e na base (ver 10.6). Sem scrim, texto sobre câmera é ilegível.
+  - Superfícies de controle: "glass" (preto translúcido + blur simulado por
+    opacidade + borda branca de 1 dp a 12-18% de alfa).
+  - Cantos: generosos, mas consistentes. Pílulas para ações de 1 linha,
+    círculos para ações isoladas.
+  - Ícones: outline branco puro, traço ~2 dp, 24-28 dp, nunca preenchidos
+    exceto quando o estado for "ativo" (ex.: microfone mutado).
+  - Cor de destaque única: MAGENTA/VERMELHO de "AO VIVO" (ver 10.1).
+    Todo o resto é branco/preto/cinza.
+  - Nada de sombras duras. Profundidade vem de camadas (seção 10.5).
+  - Nada de emojis na UI do app como ícones de ação.
+
+5.2 O que torna o design "icônico"
+  - Um selo AO VIVO inconfundível com ponto pulsante.
+  - Uma "régua de ações" vertical à direita, com ícones alinhados e
+    espaçamento matemático (nunca irregular).
+  - Comentários como "legendas de vídeo": sem caixa pesada, alto contraste,
+    leitura instantânea.
+  - Contador de espectadores discreto mas sempre legível.
+  - Consistência obsessiva: o mesmo raio, o mesmo gap, a mesma espessura.
+
+5.3 O que NÃO fazer
+  - Não copiar o layout atual do projeto.
+  - Não usar Material3 "default" para os botões da live (FilledButton,
+    ElevatedCard etc.). A camada da live usa componentes próprios.
+  - Não encher a tela de elementos. O que não estiver na imagem, não existe.
+
+
+================================================================================
+6. IDIOMA — PORTUGUÊS DO BRASIL (REGRA DURA)
+================================================================================
+
+6.1 Regra
+  TUDO que o usuário vê é em português brasileiro natural. Sem exceções.
+
+6.2 Glossário obrigatório (inglês -> português)
+  +---------------------------+---------------------------------------------+
+  | Inglês / termo atual      | Usar no app                                 |
+  +---------------------------+---------------------------------------------+
+  | LIVE                      | AO VIVO                                     |
+  | Live                      | Ao vivo                                     |
+  | Comment / Comments        | Comentar / Comentários                      |
+  | Add a comment             | Adicione um comentário                      |
+  | Send                      | Enviar                                      |
+  | Buy                       | Comprar                                     |
+  | Share                     | Compartilhar                                |
+  | Follow                    | Seguir                                      |
+  | Joined                    | Entrou                                      |
+  | Viewer / Viewers          | Espectador / Espectadores                   |
+  | Settings                  | Configurações                               |
+  | Camera                    | Câmera                                      |
+  | Flip camera               | Virar câmera                                |
+  | Mute / Unmute             | Silenciar / Ativar som                      |
+  | Microphone                | Microfone                                   |
+  | Record screen             | Gravar tela                                 |
+  | Filters                   | Filtros                                     |
+  | Effects                   | Efeitos                                     |
+  | Guests                    | Convidados                                  |
+  | Close / Exit              | Fechar / Sair                               |
+  | Back                      | Voltar                                      |
+  | Save                      | Salvar                                      |
+  | Cancel                    | Cancelar                                    |
+  | Name                      | Nome                                        |
+  | Display name              | Nome exibido                                |
+  | Title                     | Título                                      |
+  | Profile photo / Avatar    | Foto de perfil                              |
+  | Upload                    | Enviar imagem                               |
+  | Remove                    | Remover                                     |
+  | Enable / Disable          | Ativar / Desativar                          |
+  | On / Off                  | Ligado / Desligado                          |
+  | Retry                     | Tentar novamente                            |
+  | Permission                | Permissão                                   |
+  | Allow                     | Permitir                                    |
+  +---------------------------+---------------------------------------------+
+
+6.3 Exceções permitidas (NÃO traduzir)
+  - Nome do app: "StudioLive".
+  - Siglas técnicas dentro de logs de build (não é UI).
+  - Termos que o usuário digitar (nome, título, comentários).
+
+6.4 Formatação de números e horas (pt-BR)
+  - Espectadores: até 999 -> "847"; 1000+ -> "1,2 mil"; 1.000.000+ -> "1,2 mi".
+    (Se a IMAGEM 2 mostrar outro formato, o formato da imagem vence.)
+  - Tempo de live: "00:00" / "MM:SS" / "H:MM:SS".
+  - Separador decimal: vírgula.
+
+6.5 Strings
+  - Toda string visível deve estar em `res/values/strings.xml` OU em um
+    arquivo `core/constants/StringsPtBr.kt`. Escolha UMA abordagem e
+    documente. Recomendado: `strings.xml` para telas, constantes para
+    textos de overlay dinâmico.
+  - Proibido string literal em inglês em qualquer Composable.
+
+
+================================================================================
+7. ESCOPO FUNCIONAL (O QUE O APP FAZ HOJE)
+================================================================================
+
+7.1 Telas
+  (1) PREPARAÇÃO/PERMISSÕES — primeira abertura, pede acessos.
+  (2) INÍCIO — ponto de entrada simples: "Iniciar transmissão" e
+      "Configurações". Deve seguir o mesmo design system.
+  (3) AO VIVO — a tela principal, foco absoluto deste briefing.
+  (4) CONFIGURAÇÕES — todos os ajustes + toggles de visibilidade.
+
+7.2 Tela AO VIVO — capacidades
+  - Preview da câmera em tela cheia.
+  - Overlay com todos os elementos da IMAGEM 1.
+  - Trocar câmera (frontal <-> traseira) em tempo real.
+  - Silenciar/ativar microfone (um único toggle).
+  - Cronômetro de transmissão.
+  - Contador de espectadores (valor configurável; ver 14.6).
+  - Lista de comentários (dados simulados, com opção de enviar).
+  - Todos os elementos controláveis por toggle nas configurações.
+
+7.3 O que NÃO é escopo agora
+  - Streaming real para servidor (RTMP) — não implementar.
+  - Login, contas, nuvem.
+  - Gravação de tela funcional (manter o serviço preparado, sem fluxo).
+  - Interceptação de botões de volume (manter estrutura inerte).
+
+
+================================================================================
+8. ARQUITETURA DE PASTAS (VISÃO GERAL)
+================================================================================
+
+Estrutura obrigatória (nomes podem variar levemente, mas a SEPARAÇÃO é
+obrigatória). Um arquivo = uma responsabilidade.
+
+StudioLive/
+├─ build.gradle.kts
+├─ settings.gradle.kts
+├─ gradle.properties
+├─ gradlew
+├─ gradlew.bat
+├─ codemagic.yaml                    (manter, não é usado pelo CI atual)
+├─ DOCUMENTACAO_StudioLive.txt       (cópia da documentação)
+├─ docs/
+│  ├─ referencia/
+│  │  ├─ tela_ao_vivo_principal.png  (IMAGEM 1, cópia)
+│  │  └─ tela_ao_vivo_comentarios.png(IMAGEM 2, cópia)
+│  └─ MEDIDAS.md                     (matriz de medidas preenchida)
+├─ gradle/wrapper/
+│  ├─ gradle-wrapper.jar
+│  └─ gradle-wrapper.properties
+└─ app/
+   ├─ build.gradle.kts
+   ├─ proguard-rules.pro
+   └─ src/main/
+      ├─ AndroidManifest.xml
+      ├─ res/
+      │  ├─ drawable/                (ícones vetoriais próprios)
+      │  ├─ font/                    (opcional: fonte empacotada)
+      │  ├─ mipmap-anydpi-v26/
+      │  ├─ values/strings.xml
+      │  ├─ values/themes.xml
+      │  └─ xml/                     (file_paths.xml se usar FileProvider)
+      └─ java/com/studiolive/app/
+         ├─ MainActivity.kt
+         ├─ StudioLiveApp.kt                     (grafo de navegação)
+         ├─ core/
+         │  ├─ constants/DesignTokens.kt         (todas as medidas em dp)
+         │  ├─ constants/StringsPtBr.kt
+         │  ├─ constants/FeatureFlags.kt
+         │  └─ util/NumberFormat.kt              (1,2 mil / 1,2 mi)
+         ├─ data/
+         │  ├─ prefs/PreferenceKeys.kt           (nomes das chaves)
+         │  ├─ prefs/AppPreferences.kt           (DataStore, fonte da verdade)
+         │  ├─ model/UserProfile.kt              (nome, título, avatar)
+         │  ├─ model/LiveUiConfig.kt             (flags de visibilidade)
+         │  └─ media/AvatarStorage.kt            (cópia + decode do avatar)
+         ├─ domain/
+         │  ├─ camera/CameraController.kt        (bind/unbind, flip)
+         │  ├─ audio/AudioController.kt          (mute/unmute, hook futuro)
+         │  └─ permissions/PermissionHelper.kt
+         ├─ ui/
+         │  ├─ theme/{Color,Type,Shapes,Theme}.kt
+         │  ├─ components/
+         │  │  ├─ GlassCircleButton.kt
+         │  │  ├─ GlassPill.kt
+         │  │  └─ LiveBadge.kt
+         │  ├─ permissions/PermissionGateScreen.kt
+         │  ├─ home/HomeScreen.kt
+         │  ├─ live/
+         │  │  ├─ LiveScreen.kt                  (host: câmera + overlay)
+         │  │  ├─ LiveViewModel.kt
+         │  │  ├─ LiveLayoutMetrics.kt           (scale, insets, bandas)
+         │  │  └─ overlay/
+         │  │     ├─ LiveOverlay.kt              (raiz do overlay)
+         │  │     ├─ ProfileHeader.kt
+         │  │     ├─ LiveTitleRow.kt
+         │  │     ├─ ViewerBadge.kt
+         │  │     ├─ ActionRail.kt               (coluna direita)
+         │  │     ├─ CommentLayer.kt
+         │  │     ├─ CommentComposer.kt
+         │  │     └─ CloseButton.kt
+         │  └─ config/
+         │     ├─ ConfigScreen.kt
+         │     ├─ ConfigViewModel.kt
+         │     └─ sections/{PerfilSection, LiveSection, ElementosSection,
+         │                  PermissoesSection}.kt
+         └─ features/
+            └─ recording/ScreenRecordService.kt  (mantida, inerte)
+
+Regra: nenhuma tela acessa DataStore diretamente. Somente ViewModel ->
+AppPreferences.
+
+
+================================================================================
+9. FLUXO DE DADOS (UNIDIRECIONAL)
+================================================================================
+
+DataStore (AppPreferences)
+      │  Flow<Preferences>
+      ▼
+ViewModel (ConfigViewModel / LiveViewModel)
+      │  StateFlow<UiState>
+      ▼
+Composables (estado imutável, sem lógica de negócio)
+      │  eventos (onClick, onValueChange)
+      ▼
+ViewModel -> AppPreferences (escrita)
+
+Regras:
+  - UI nunca lê DataStore direto.
+  - UI nunca guarda estado de persistência em `remember` (só estado efêmero).
+  - Toda escrita é `suspend` e ocorre no `viewModelScope`.
+  - Estado de UI é imutável (`data class` com `copy`).
+  - Um único `StateFlow<LiveUiConfig>` alimenta o overlay inteiro.
+
+
+================================================================================
+10. DESIGN SYSTEM (TOKENS)
+================================================================================
+
+10.1 Cores — comece por estas, depois SUBSTITUA pelos HEX medidos na imagem
+---------------------------------------------------------------------------
+  Nome                 Hex        Uso
+  ---------------------------------------------------------------------------
+  Black                 #000000    fundo do scrim opaco, barras
+  White                 #FFFFFF    texto primário, ícones
+  LiveRed               #FF2D55    selo AO VIVO (ou o HEX da imagem)
+  LiveRedAlt            #E8135F    gradiente do selo
+  SurfaceGlass          #000000    com alfa 35% a 55% (botões glass)
+  SurfaceGlassStrong    #000000    com alfa 65% (composer de comentário)
+  TextSecondary         #FFFFFF    com alfa 72%
+  TextTertiary          #FFFFFF    com alfa 55%
+  StrokeGlass           #FFFFFF    com alfa 14% (borda 1 dp)
+  Danger                #FF3B30    ações destrutivas (encerrar live)
+
+  Regra: nenhuma cor hardcoded dentro de Composable. Tudo em `Color.kt`.
+
+10.2 Tipografia
+---------------
+  - Fonte padrão: Roboto (system). Só empacote uma fonte própria em
+    `res/font` se você realmente incluir o arquivo .ttf no ZIP.
+    NUNCA use downloadable fonts (dependem de Google Play Services).
+  - Escala (em sp, multiplicada por `scale` quando dentro do overlay):
+
+      Display .......... 28 sp / Bold      (não usado na live)
+      Título da live ... 15 sp / SemiBold
+      Nome exibido ..... 13 sp / Medium
+      Selo AO VIVO ..... 11 sp / Bold / letterSpacing 0,08 em / CAIXA ALTA
+      Espectadores ..... 12 sp / Medium
+      Comentário ....... 13 sp / Regular (nome em SemiBold)
+      Composer ......... 13 sp / Regular
+      Cronômetro ....... 12 sp / Medium / tabularNumbers
+
+  - Altura de linha: 1,25x a 1,35x o tamanho da fonte.
+  - Nunca menos de 11 sp em nada que precise ser lido.
+
+10.3 Espaçamento (grid de 4 dp)
+-------------------------------
+  4 / 8 / 12 / 16 / 20 / 24 / 32 dp. Nada fora dessa escala.
+  Gap padrão entre itens da régua de ações: 14 dp.
+  Gap padrão entre blocos: 8 dp.
+
+10.4 Raios
+----------
+  Círculo ...... 50% (ações isoladas)
+  Pílula ....... altura/2 (composer, selo)
+  Card suave ... 16 dp
+  Comentário ... 12 dp (se a IMAGEM 2 mostrar caixa)
+
+10.5 Profundidade (camadas Z)
+-----------------------------
+  Z0 — preview da câmera
+  Z1 — scrim de gradiente (topo e base)
+  Z2 — conteúdo informativo (avatar, nome, título, selo, espectadores,
+       comentários)
+  Z3 — controles (botões, régua de ações, composer)
+  Z4 — diálogos/sheets (configurações rápidas, confirmação de sair)
+
+  Sombras: `Modifier.shadow` só em Z4. Em Z1-Z3, profundidade é feita com
+  opacidade + borda, não com blur.
+
+10.6 Scrims (obrigatórios)
+--------------------------
+  Topo: gradiente vertical de #000000 (alfa 0,55) na borda superior
+        até alfa 0,00 na altura de ~140 dp.
+  Base: gradiente vertical de alfa 0,00 a ~180 dp da base até
+        #000000 (alfa 0,72) na borda inferior.
+  Se a IMAGEM 1 não tiver scrim visível, reduza a intensidade, mas mantenha
+  um mínimo de 0,25 de alfa para garantir contraste (acessibilidade).
+
+10.7 Toque e movimento
+----------------------
+  - Alvo mínimo de toque: 48 x 48 dp (mesmo que o ícone desenhado seja 24).
+  - Feedback de pressão: escala 1,00 -> 0,94 em 120 ms, com volta em 160 ms.
+  - Ripple: branco a 12% de alfa, recortado na forma do botão.
+  - Transições de visibilidade: fade 150 ms + slide de 8 dp.
+  - Selo AO VIVO: ponto pulsante, ciclo de 1.400 ms, alfa 1,0 <-> 0,35.
+    (Se o usuário preferir estático, é um toggle nas configurações.)
+
+10.8 Acessibilidade
+-------------------
+  - Todo botão precisa de `contentDescription` em português.
+  - Contraste mínimo 4,5:1 para texto pequeno.
+  - Não comunicar estado APENAS por cor: mute usa ícone diferente.
+
+
+================================================================================
+11. ANATOMIA DA TELA "AO VIVO" — ZONAS E COMPORTAMENTO
+================================================================================
+
+REGRA: as posições/tamanhos exatos vêm da IMAGEM 1. Esta seção define a
+ESTRUTURA e as REGRAS; a imagem define os NÚMEROS.
+
+11.1 Árvore de composição (obrigatória)
+---------------------------------------
+  LiveScreen
+  └─ Box(fillMaxSize)                              // Z0
+     ├─ AndroidView(PreviewView)  fillMaxSize       // câmera
+     ├─ ScrimTop()                fillMaxWidth      // Z1
+     ├─ ScrimBottom()             fillMaxWidth      // Z1
+     └─ LiveOverlay(fillMaxSize)                    // Z2/Z3
+        ├─ Column(align TopStart)                   // grupo superior
+        │  ├─ ProfileHeader      (avatar + nome + título)
+        │  └─ LiveTitleRow       (nome do app + título da live)
+        ├─ ViewerBadge(align TopEnd)                // se a imagem indicar
+        ├─ CloseButton(align TopEnd)                // ver 11.5
+        ├─ ActionRail(align CenterEnd)              // coluna direita
+        ├─ CommentLayer(align BottomStart)          // acima da barra
+        ├─ CommentComposer(align BottomStart)       // barra inferior
+        └─ Timer / LiveBadge (conforme imagem)
+
+  IMPORTANTE: use `Alignment` + `WindowInsets`, NUNCA `offset(y = 630.dp)`.
+  Offsets absolutos quebram em telas menores e criam buracos quando um
+  elemento é escondido por toggle.
+
+11.2 Grupo superior (topo)
+--------------------------
+  Ordem visual esperada (confirme na IMAGEM 1):
+    avatar circular -> nome exibido -> título da live
+    selo "AO VIVO" + ponto pulsante
+    cronômetro (se existir na imagem)
+    contador de espectadores (posição conforme IMAGEM 2)
+
+  Regras:
+    - O grupo é ancorado em `insets.top + 12 dp`.
+    - A largura máxima do bloco de texto termina ANTES do bloco de botões
+      da direita (reserve o espaço da coluna de ações).
+    - A fonte do título deve ser mediana (não dominante). O vídeo é o herói.
+    - Nome e título: 1 linha, `maxLines = 1`, `TextOverflow.Ellipsis`.
+
+11.3 Coluna direita de ações (a parte mais importante)
+-----------------------------------------------------
+  A IMAGEM 1 mostra botões no canto superior direito E no canto inferior
+  direito. Trate-os como UMA régua contínua dividida em duas âncoras:
+
+    - Bloco A (topo-direita): ancorado em `insets.top + 12 dp`.
+      Alinhamento: fim (end).
+      Ordem: a ordem exata da imagem, de cima para baixo.
+    - Bloco B (base-direita): ancorado acima do composer, alinhado ao fim.
+      Ordem: a ordem exata da imagem, de cima para baixo.
+
+  Se a imagem mostrar uma coluna única contínua, trate como uma só régua
+  centrada verticalmente (ver 13.4).
+
+  Regras de desenho:
+    - Cada item: círculo glass de diâmetro medido (tipicamente 40-48 dp)
+      OU ícone "solto" sem fundo — COPIE o que a imagem mostra.
+    - Ícones alinhados no mesmo eixo X (mesmo centro).
+    - Gap constante entre itens.
+    - Nenhum botão pode se sobrepor ao bloco de comentários.
+
+11.4 Comentários (referência: IMAGEM 2)
+---------------------------------------
+  Aparência:
+    - Cada comentário é uma linha (ou duas, se o texto for longo).
+    - Estrutura: [nome do autor em SemiBold] + espaço + [texto em Regular].
+    - Sem fundo pesado: no máximo um pill escuro translúcido por linha
+      (só se a IMAGEM 2 mostrar).
+    - Largura máxima: ~68% da largura da tela (deixe a régua de ações livre).
+    - Alinhamento: início (start), ancorado à esquerda com padding lateral
+      medido (tipicamente 12-16 dp).
+    - Empilhamento: de baixo para cima (o mais novo embaixo, junto do
+      composer) OU de cima para baixo — COPIE a IMAGEM 2.
+    - Quantidade visível: a que couber no espaço, com fade no topo.
+      Mínimo 3 itens, máximo conforme a imagem.
+    - Sem bordas duras, sem sombra, sem separadores.
+
+  Comportamento:
+    - Novos comentários entram com fade+slide de 8 dp.
+    - Scroll automático para o mais recente quando o usuário não estiver
+      interagindo com a lista.
+    - Se `enableComments == false`, a lista inteira some com animação e o
+      espaço é liberado para os outros elementos (ver seção 13).
+
+11.5 Botão fechar
+-----------------
+  - Presente no topo (posição conforme IMAGEM 1).
+  - Ação: confirmação "Encerrar transmissão?" com "Cancelar" / "Encerrar".
+  - Nunca fecha direto sem confirmação.
+
+11.6 Contador de espectadores (referência: IMAGEM 2)
+-----------------------------------------------------
+  - Apenas o VISUAL vem da imagem 2: formato, tipografia, cor, opacidade,
+    ícone e posição relativa.
+  - Valor: configurável nas configurações (ver 14.6). Se o modo automático
+    estiver ativo, simula crescimento suave (subida a cada 3-7 s).
+  - Formatação: `NumberFormat.kt` (pt-BR).
+
+11.7 Composer de comentário (barra inferior)
+--------------------------------------------
+  - Pílula com borda de 1 dp (alfa ~18%) sobre fundo escuro translúcido.
+  - Placeholder: "Adicione um comentário" (nunca "Comment").
+  - Ícone de enviar à direita dentro da pílula.
+  - Ao focar: o teclado sobe e o composer sobe junto (`imePadding`),
+    sem cobrir a régua de ações.
+  - Se `enableCommentComposer == false`, o composer some e a lista de
+    comentários se reancora na base.
+
+11.8 Barra inferior adicional
+-----------------------------
+  Se a IMAGEM 1 tiver uma barra de navegação/ações na base (ex.: ícones
+  Home/Busca/Perfil), ela deve ser desenhada como componente próprio,
+  acima do `insets.navigationBars`, e ter toggle individual.
+
+
+================================================================================
+12. INVENTÁRIO DE BOTÕES E TOGGLES (OBRIGATÓRIO)
+================================================================================
+
+TODO elemento clicável da tela AO VIVO precisa de um toggle em
+Configurações -> "Elementos da tela ao vivo".
+
+12.1 Lista mínima (adapte à IMAGEM 1; se a imagem tiver mais, adicione)
+-----------------------------------------------------------------------
+  #   Elemento                              Chave (DataStore)                    Padrão
+  ---------------------------------------------------------------------------------------
+  01  Avatar / foto de perfil              show_profile_avatar                  true
+  02  Nome exibido                         show_display_name                    true
+  03  Título da live                       show_live_title                      true
+  04  Selo "AO VIVO"                       show_live_badge                      true
+  05  Cronômetro da live                   show_live_timer                      true
+  06  Contador de espectadores             show_viewer_count                    true
+  07  Botão fechar/encerrar                show_close_button                    true
+  08  Botão virar câmera                   show_camera_flip                     true
+  09  Botão microfone (mute/unmute)        show_mic_toggle                      true
+  10  Botão câmera on/off (se existir)     show_camera_toggle                   true
+  11  Botão de reações/coração             show_reactions                       true
+  12  Botão de curtir                      show_like                            true
+  13  Botão compartilhar                   show_share                           true
+  14  Botão filtros/efeitos                show_filters                         true
+  15  Botão convidados                     show_guests                          true
+  16  Botão gravar tela                    show_screen_record                   true
+  17  Botão configurações rápidas          show_quick_settings                 true
+  18  Botão "mais opções" (...)            show_more_options                   true
+  19  Botão presente/estrela               show_gifts                           true
+  20  Lista de comentários                 show_comments                         true
+  21  Campo de comentário (composer)       show_comment_composer                true
+  22  Barra inferior de navegação          show_bottom_nav                      true
+  23  Botão de trocar de live/perfil       show_switch_account                  true
+  24  Botão de áudio (alto-falante)        show_speaker                         true
+
+  Observação: se algum item da lista não existir na IMAGEM 1, ele NÃO deve
+  ser criado na tela. Nesse caso o toggle correspondente também não deve
+  aparecer nas configurações (para não poluir). Documente a decisão.
+
+12.2 Regras dos toggles
+-----------------------
+  - Aplicação IMEDIATA, sem reiniciar o app e sem recriar a Activity.
+  - O estado é persistido no DataStore.
+  - Desligar um elemento NÃO pode deixar buraco: ver seção 13.
+  - Cada toggle tem: rótulo em português, descrição curta (1 linha) e
+    `Switch` alinhado à direita.
+  - Agrupar em: "Perfil e informações", "Ações da direita", "Comentários",
+    "Barra inferior".
+  - Deve existir um botão "Restaurar padrões" que religa tudo.
+
+12.3 Estrutura de dados
+-----------------------
+  data class LiveUiConfig(
+      val showProfileAvatar: Boolean = true,
+      val showDisplayName: Boolean = true,
+      val showLiveTitle: Boolean = true,
+      val showLiveBadge: Boolean = true,
+      val showLiveTimer: Boolean = true,
+      val showViewerCount: Boolean = true,
+      val showCloseButton: Boolean = true,
+      val showCameraFlip: Boolean = true,
+      val showMicToggle: Boolean = true,
+      // ... um campo por toggle
+  )
+
+  Nunca use um `Map<String, Boolean>` genérico: perde type-safety e
+  dificulta a manutenção por outra IA.
+
+
+================================================================================
+13. MOTOR DE LAYOUT RESPONSIVO (SEM BURACOS) — OBRIGATÓRIO
+================================================================================
+
+O usuário foi explícito: ao esconder botões, NÃO pode sobrar um espaço
+grande. Isso exige um layout que FLUI, não um layout de posições fixas.
+
+13.1 Princípio
+--------------
+  Nenhum elemento é posicionado com offset absoluto em Y.
+  Elementos são agrupados em 3 BANDAS que se recalculam:
+
+    Banda 1 (topo)    : ancorada em `insets.top + topPadding`
+    Banda 2 (meio)    : régua de ações, CENTRADA entre o fim da banda 1 e o
+                        início da banda 3
+    Banda 3 (base)    : ancorada em `maxHeight - insets.bottom - bottomPadding`
+
+13.2 Cálculo (implementar em `LiveLayoutMetrics`)
+-------------------------------------------------
+  Dados de entrada: maxWidth, maxHeight, insets, LiveUiConfig.
+
+  scale        = maxWidth / 411f
+  topPadding   = 12.dp * scale
+  sidePadding  = 12.dp * scale
+  railGap      = 14.dp * scale
+  itemSize     = 44.dp * scale      // ajuste para o medido na imagem
+  composerH    = 48.dp * scale
+  composerGap  = 10.dp * scale
+
+  alturaGrupoTopo = alturaRealDoProfileHeader + (liveTitle ? altura : 0)
+  topoFim         = insets.top + topPadding + alturaGrupoTopo
+
+  alturaComposer  = if (showCommentComposer) composerH + composerGap else 0
+  alturaLista     = if (showComments)
+                        min(alturaDisponivel, maxHeight * 0.30f)
+                    else 0
+  baseInicio      = maxHeight - insets.bottom - bottomPadding
+                    - alturaComposer - alturaLista
+
+  bandaMeioTopo    = topoFim + 20.dp * scale
+  bandaMeioBase    = baseInicio - 20.dp * scale
+  alturaRegua      = nItens * itemSize + (nItens - 1) * railGap
+  reguaTopo        = bandaMeioTopo +
+                     ((bandaMeioBase - bandaMeioTopo) - alturaRegua) / 2
+
+  // Proteção: nunca deixar a régua invadir as bandas.
+  reguaTopo = reguaTopo.coerceAtLeast(bandaMeioTopo)
+
+  Se `alturaRegua > (bandaMeioBase - bandaMeioTopo)`, reduza `itemSize`
+  progressivamente (nunca abaixo de 36 dp) e depois permita scroll interno
+  na régua. Documente esse fallback.
+
+13.3 Consequências esperadas
+----------------------------
+  - Esconder 3 botões do topo: a régua do topo desce 3*(itemSize+gap)?
+    NÃO — a régua é UMA coluna centrada na banda do meio. Ela apenas
+    encolhe e permanece centrada, sem buraco.
+  - Se a IMAGEM 1 tiver DOIS blocos separados (topo-direita e base-direita),
+    cada bloco é ancorado na sua banda e cresce/encolhe para DENTRO:
+      Bloco A cresce para baixo a partir do topo.
+      Bloco B cresce para cima a partir da base.
+    O vão entre eles absorve a diferença — sem buraco visível.
+  - Desligar a lista de comentários: a base sobe, o composer fica a
+    `insets.bottom + bottomPadding` da borda.
+  - Desligar o composer: a lista desce até a borda inferior.
+  - Desligar ambos: a régua pode se estender até a base.
+
+13.4 Como saber qual modelo usar
+--------------------------------
+  Olhe a IMAGEM 1:
+    - Se os botões da direita formam UMA coluna contínua  -> modelo 13.2.
+    - Se formam DOIS grupos visivelmente separados        -> modelo 13.3.
+  Documente no `DOCUMENTACAO_StudioLive.txt` qual foi escolhido e por quê.
+
+13.5 Teste obrigatório de responsividade
+----------------------------------------
+  Faça uma tabela de combinações e verifique que não há sobreposição:
+    - todos visíveis
+    - só topo visível
+    - só base visível
+    - só comentários visíveis
+    - só régua visível
+    - nada visível (tela limpa: apenas câmera)
+  Em "nada visível" a tela deve ficar 100% câmera, sem resquícios.
+
+
+================================================================================
+14. FUNCIONALIDADES OBRIGATÓRIAS (DETALHAMENTO)
+================================================================================
+
+14.1 Troca de câmera (frontal <-> traseira)
+-------------------------------------------
+  Implementação com CameraX:
+    - Mantenha um `CameraController` com `CameraSelector` em estado.
+    - Ao trocar:
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(lifecycleOwner, novoSelector,
+                                       preview, imageCapture?)
+    - Verifique `cameraProvider.hasCamera(selector)` ANTES de trocar.
+      Se o aparelho não tiver a câmera, mostre um toast/snackbar em
+      português: "Câmera indisponível neste aparelho".
+    - Não recrie a Activity.
+    - Não recrie o PreviewView (evita piscar).
+    - Persistir a última câmera usada? NÃO (o padrão ao abrir deve ser a
+      frontal para uma live). Documente.
+
+14.2 Microfone (um botão, dois estados)
+---------------------------------------
+  - Estado: `isMicMuted: Boolean`.
+  - Ícone: `Icons.Filled.Mic` quando ativo, `Icons.Filled.MicOff` quando
+    mutado.
+  - Feedback visual: quando mutado, o círculo do botão fica com fundo
+    vermelho translúcido e ícone branco; quando ativo, glass neutro.
+  - Ação: alterna o estado, persiste no DataStore e notifica o
+    `AudioController`.
+  - `AudioController` hoje só guarda o estado; deixe um método
+    `applyMuteToRecording()` vazio e documentado para o futuro.
+  - Não é necessário pedir permissão de áudio de novo se já concedida.
+
+14.3 Nome exibido no app
+------------------------
+  - Campo "Nome exibido" em Configurações.
+  - Aparece no bloco de perfil da live.
+  - Persistido em DataStore (`app_display_name`).
+  - Limite: 30 caracteres. Vazio -> usa "StudioLive".
+  - Trim de espaços. Não permitir apenas espaços.
+  - Deve refletir na hora (StateFlow), sem reiniciar.
+
+14.4 Título da live
+-------------------
+  - Campo "Título da live" em Configurações.
+  - Substitui o valor atual "youngezee".
+  - Aparece no canto superior esquerdo, abaixo/junto do nome.
+  - Persistido em DataStore (`live_title`).
+  - Limite: 60 caracteres. Vazio -> "Transmissão ao vivo".
+  - `maxLines = 1` com ellipsis na tela.
+
+14.5 Foto de perfil (avatar)
+----------------------------
+  - Botão "Enviar imagem" em Configurações.
+  - Usar `ActivityResultContracts.GetContent()` com `"image/*"`.
+    (Não exige permissão de armazenamento em nenhuma versão do Android.)
+  - Ao receber a URI:
+      1. Ler via `contentResolver.openInputStream(uri)`.
+      2. Decodificar com `BitmapFactory.Options` + `inSampleSize`
+         para no máximo 512 x 512 px (evita OOM).
+      3. Recortar em quadrado central.
+      4. Salvar JPEG qualidade 88 em `filesDir/profile/avatar.jpg`.
+      5. Persistir APENAS o caminho do arquivo (não a URI — URIs expiram).
+      6. Atualizar o StateFlow.
+  - Botão "Remover foto" -> apaga o arquivo, volta ao placeholder.
+  - Placeholder: círculo com a inicial do nome em SemiBold sobre cor
+    derivada do nome (hash estável -> paleta de 6 cores).
+  - Não adicionar bibliotecas de imagem (Coil/Glide). O decode manual
+    acima é suficiente e reduz risco no build.
+
+14.6 Contador de espectadores
+-----------------------------
+  - Configuração: "Espectadores" com duas opções:
+      (a) Automático (simulado) — começa em um valor base e sobe devagar.
+      (b) Manual — o usuário digita o número.
+  - Persistir `viewer_count` e `viewer_mode`.
+  - Limite manual: 0 a 9.999.999.
+  - Formatação pt-BR conforme 6.4.
+
+14.7 Cronômetro
+---------------
+  - Começa quando a tela AO VIVO é aberta (ou quando "Iniciar" é tocado).
+  - Formato `MM:SS`, virando `H:MM:SS` após 1 hora.
+  - Para quando a tela é fechada.
+
+14.8 Reações / corações
+-----------------------
+  - Se existirem na IMAGEM 1: animação de corações subindo do botão.
+  - Só implementar se a imagem mostrar. Caso contrário, não criar.
+
+14.9 Comentários
+----------------
+  - Fonte: lista mock em memória (5-8 comentários iniciais em português).
+  - Enviar comentário pelo composer adiciona à lista e limpa o campo.
+  - Não persiste comentários entre sessões (efêmero).
+  - Nomes de exemplo em português (ex.: "Ana", "Bruno", "Carla").
+
+
+================================================================================
+15. PERSISTÊNCIA (DATASTORE) — CONTRATO COMPLETO
+================================================================================
+
+15.1 Regra
+  TUDO que o usuário configura sobrevive a fechar e reabrir o app.
+
+15.2 Chaves (todas em `PreferenceKeys.kt`)
+------------------------------------------
+  +-------------------------------+-------------+---------------------------+
+  | Chave                         | Tipo        | Padrão                    |
+  +-------------------------------+-------------+---------------------------+
+  | app_display_name              | String      | "StudioLive"              |
+  | live_title                    | String      | "Transmissão ao vivo"     |
+  | avatar_path                   | String      | "" (sem foto)             |
+  | viewer_count                  | Int         | 0                         |
+  | viewer_mode                   | String      | "auto"  (auto|manual)     |
+  | is_mic_muted                  | Boolean     | false                     |
+  | show_profile_avatar           | Boolean     | true                      |
+  | show_display_name             | Boolean     | true                      |
+  | show_live_title               | Boolean     | true                      |
+  | show_live_badge               | Boolean     | true                      |
+  | show_live_timer               | Boolean     | true                      |
+  | show_viewer_count             | Boolean     | true                      |
+  | show_close_button             | Boolean     | true                      |
+  | show_camera_flip              | Boolean     | true                      |
+  | show_mic_toggle               | Boolean     | true                      |
+  | show_camera_toggle            | Boolean     | true                      |
+  | show_reactions                | Boolean     | true                      |
+  | show_like                     | Boolean     | true                      |
+  | show_share                    | Boolean     | true                      |
+  | show_filters                  | Boolean     | true                      |
+  | show_guests                   | Boolean     | true                      |
+  | show_screen_record            | Boolean     | true                      |
+  | show_quick_settings           | Boolean     | true                      |
+  | show_more_options             | Boolean     | true                      |
+  | show_gifts                    | Boolean     | true                      |
+  | show_comments                 | Boolean     | true                      |
+  | show_comment_composer         | Boolean     | true                      |
+  | show_bottom_nav               | Boolean     | true                      |
+  | show_switch_account           | Boolean     | true                      |
+  | show_speaker                  | Boolean     | true                      |
+  | permissions_asked             | Boolean     | false                     |
+  +-------------------------------+-------------+---------------------------+
+
+  Regra: ao adicionar chave nova no futuro, SEMPRE dar um valor padrão
+  explícito no `map { }`. Nunca deixar `null` chegar na UI.
+
+15.3 Nome do arquivo DataStore
+  `preferencesDataStore(name = "studiolive_prefs")` — manter o mesmo nome
+  para não perder dados de versões anteriores.
+
+15.4 Escrita
+  Toda escrita: `context.dataStore.edit { it[CHAVE] = valor }` dentro de
+  `suspend fun` no ViewModel. Nunca no Composable.
+
+15.5 Migração
+  Se renomear chaves, crie função de migração que lê a antiga e grava a nova
+  na primeira execução. Documente.
+
+
+================================================================================
+16. PERMISSÕES
+================================================================================
+
+16.1 Regra
+  Na PRIMEIRA abertura, o app pede os acessos necessários, explicando em
+  português por que precisa. O usuário não deve descobrir uma permissão
+  faltando no meio de uma transmissão.
+
+16.2 Permissões a declarar no Manifest
+--------------------------------------
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  (33+)
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+  <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+  NÃO declarar:
+    - READ_EXTERNAL_STORAGE / READ_MEDIA_IMAGES (usamos Photo Picker).
+    - BLUETOOTH_CONNECT (não usado).
+    - Qualquer permissão que não seja usada de fato.
+
+16.3 Fluxo na inicialização
+---------------------------
+  Tela "Preparação" (PermissionGateScreen):
+    1. Explica: "Para transmitir, o StudioLive precisa de acesso à câmera,
+       ao microfone e às notificações."
+    2. Botão "Continuar" -> dispara a sequência:
+         CAMERA
+         RECORD_AUDIO
+         POST_NOTIFICATIONS (somente API 33+)
+    3. Usar `rememberLauncherForActivityResult(RequestMultiplePermissions)`.
+    4. Se TODAS concedidas -> grava `permissions_asked = true` -> Home.
+    5. Se alguma negada:
+         - Mostrar cartão em português explicando qual falta e para quê.
+         - Botão "Tentar novamente".
+         - Se `shouldShowRequestPermissionRationale == false` após negativa,
+           botão "Abrir configurações" (Intent para
+           `Settings.ACTION_APPLICATION_DETAILS_SETTINGS`).
+    6. O usuário pode prosseguir mesmo sem áudio/notificação (o app deve
+       funcionar degradado), mas CÂMERA é obrigatória para a tela AO VIVO.
+       Se a câmera for negada, a tela AO VIVO mostra um estado vazio elegante
+       com botão "Permitir câmera".
+
+16.4 MediaProjection (gravação de tela)
+---------------------------------------
+  - NUNCA pedir na inicialização. O consentimento do MediaProjection só é
+    solicitado no momento em que o usuário ativa "Gravar tela".
+  - Hoje o serviço `ScreenRecordService` permanece inerte (sem fluxo real).
+    Se o botão existir na imagem, ele pode apenas abrir um aviso
+    "Em breve" — documente essa escolha.
+
+16.5 Boas práticas
+  - Não pedir permissão em loop.
+  - Não bloquear a UI enquanto pede.
+  - Toda mensagem de permissão em português, sem jargão técnico.
+  - Testar o fluxo "negar tudo" e "negar para sempre".
+
+
+================================================================================
+17. TELA DE CONFIGURAÇÕES — ESPECIFICAÇÃO
+================================================================================
+
+17.1 Estrutura (Scroll vertical, cartões por seção)
+---------------------------------------------------
+  Cabeçalho: "Configurações" + botão voltar.
+
+  SEÇÃO 1 — PERFIL
+    - Foto de perfil (círculo + botão "Enviar imagem" + "Remover")
+    - "Nome exibido no app"   (TextField, 30 chars)
+    - Preview ao vivo do bloco de perfil (avatar + nome formatados como na
+      live) — ajuda o usuário a ver o resultado.
+
+  SEÇÃO 2 — TRANSMISSÃO
+    - "Título da live" (TextField, 60 chars)
+    - "Espectadores": [Automático] [Manual] + campo numérico se manual.
+    - "Microfone": Switch "Iniciar com microfone silenciado"
+
+  SEÇÃO 3 — ELEMENTOS DA TELA AO VIVO
+    - Subgrupo "Perfil e informações"
+        [Switch] Foto de perfil
+        [Switch] Nome exibido
+        [Switch] Título da live
+        [Switch] Selo AO VIVO
+        [Switch] Cronômetro
+        [Switch] Contador de espectadores
+    - Subgrupo "Ações da direita"
+        [Switch] Botão virar câmera
+        [Switch] Botão microfone
+        [Switch] Botão câmera
+        [Switch] Reações
+        [Switch] Curtir
+        [Switch] Compartilhar
+        [Switch] Filtros
+        [Switch] Convidados
+        [Switch] Gravar tela
+        [Switch] Configurações rápidas
+        [Switch] Mais opções
+        [Switch] Presentes
+    - Subgrupo "Comentários"
+        [Switch] Lista de comentários
+        [Switch] Campo de comentário
+    - Subgrupo "Barra inferior"
+        [Switch] Barra de navegação
+        [Switch] Trocar de conta
+        [Switch] Alto-falante
+    - Botão "Restaurar padrões"
+
+  SEÇÃO 4 — PERMISSÕES
+    - Lista com o status de cada permissão (Concedida / Negada)
+    - Botão "Revisar permissões" -> reabre o fluxo.
+
+  SEÇÃO 5 — SOBRE
+    - Versão do app (versionName), nome do pacote, aviso "Uso pessoal".
+
+17.2 Regras visuais
+  - Fundo escuro; cartões com raio 16 dp; separadores de 1 dp a 8% de alfa.
+  - Cada Switch salva IMEDIATAMENTE (não existe botão "Salvar").
+  - TextFields salvam no `onValueChange` com debounce de 300 ms (evita
+    escrever no disco a cada tecla) OU ao perder foco. Documente a escolha.
+  - Feedback ao salvar não é necessário (silencioso), mas o estado deve
+    persistir de verdade (testar fechando o app).
+
+17.3 Proibições
+  - Nenhum texto em inglês.
+  - Nenhum toggle sem efeito real.
+  - Nenhum campo que "parece funcionar" mas não persiste.
+
+
+================================================================================
+18. NAVEGAÇÃO
+================================================================================
+
+  Rotas: "permissions" (start se não concedido), "home", "live", "config".
+  Use Navigation Compose 2.8.2 (já no projeto).
+
+  Regras:
+    - `config` deve poder voltar para onde veio.
+    - Ao voltar de `config` para `live`, as alterações já estão aplicadas
+      por StateFlow (nada de recarregar tela).
+    - Botão físico "voltar" na `live` deve pedir confirmação (mesma do X).
+    - Nunca empilhar `live` duas vezes.
+
+  Dica de arquitetura: mantenha `LiveViewModel` e `ConfigViewModel` no escopo
+  da Activity (viewModel único compartilhado) OU use um único
+  `AppViewModel` com todo o estado. Duas fontes de verdade para o mesmo dado
+  é a origem mais comum de bug. Recomendado: UM `AppViewModel`.
+
+
+================================================================================
+19. COMPONENTES DE UI REUTILIZÁVEIS
+================================================================================
+
+  GlassCircleButton(
+      icon: ImageVector,
+      contentDescription: String,
+      size: Dp,
+      active: Boolean = false,
+      onClick: () -> Unit
+  )
+
+  GlassPill(
+      modifier, content: @Composable RowScope.() -> Unit
+  )
+
+  LiveBadge(
+      text: String = "AO VIVO",
+      pulsing: Boolean,
+      scale: Float
+  )
+
+  ViewerBadge(count: Int, scale: Float)
+
+  ActionRailItem(
+      icon, label, active, onClick
+  )
+
+  Regras:
+  - Todos aceitam `scale` (ou leem de `LocalLiveMetrics`) para manter a
+    proporção no G84.
+  - Nenhum componente conhece o ViewModel. Só recebem dados e callbacks.
+  - `@Preview` obrigatório para cada componente, com largura 411 dp.
+
+  Dica: forneça `CompositionLocal` com `LiveMetrics(scale, insets)` para
+  não passar `scale` por 6 níveis de parâmetros.
+
+
+================================================================================
+20. STACK TÉCNICA EXATA (NÃO ALTERAR SEM NECESSIDADE)
+================================================================================
+
+  Gradle ........................... 8.7
+  Android Gradle Plugin ............ 8.5.2
+  Kotlin ........................... 1.9.24
+  KSP .............................. 1.9.24-1.0.20
+  Compose Compiler Extension ....... 1.5.14
+  Compose BOM ...................... 2024.09.03
+  compileSdk ....................... 34
+  minSdk ........................... 24
+  targetSdk ........................ 34
+  Java source/target ............... 17
+  JDK de build (CI) ................ 17 (Temurin)
+
+  Dependências (versões atuais — não atualizar sem testar):
+    androidx.core:core-ktx:1.13.1
+    androidx.lifecycle:lifecycle-runtime-ktx:2.8.6
+    androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6
+    androidx.activity:activity-compose:1.9.2
+    androidx.navigation:navigation-compose:2.8.2
+    androidx.compose.ui:ui
+    androidx.compose.ui:ui-graphics
+    androidx.compose.ui:ui-tooling-preview
+    androidx.compose.material3:material3
+    androidx.compose.material:material-icons-extended
+    androidx.camera:camera-core:1.3.4
+    androidx.camera:camera-camera2:1.3.4
+    androidx.camera:camera-lifecycle:1.3.4
+    androidx.camera:camera-view:1.3.4
+    androidx.datastore:datastore-preferences:1.1.1
+
+  Regra: NÃO adicionar bibliotecas novas sem justificativa forte. Cada
+  dependência nova é um risco de build. Se precisar, justifique no
+  `DOCUMENTACAO_StudioLive.txt`.
+
+  Atenção: `material-icons-extended` já inclui Mic, MicOff, Cameraswitch,
+  Close, Favorite, Send, etc. Use-o em vez de desenhar ícones à mão.
+
+
+================================================================================
+21. BUILD E AMBIENTE
+================================================================================
+
+21.1 `gradle.properties` (manter exatamente esta política de memória)
+---------------------------------------------------------------------
+  org.gradle.jvmargs=-Xmx1024m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+  org.gradle.workers.max=2
+  kotlin.daemon.jvmargs=-Xmx768m
+  android.useAndroidX=true
+  android.nonTransitiveRClass=true
+  kotlin.code.style=official
+
+  Motivo: a máquina local do usuário tem ~6 GB de RAM. Com 2 GB de heap o
+  build morre com "insufficient memory". No GitHub Actions não há problema,
+  mas mantenha baixo para o usuário poder compilar localmente também.
+
+21.2 `themes.xml`
+-----------------
+  <style name="Theme.StudioLive" parent="android:style/Theme.Material.NoActionBar">
+      <item name="android:statusBarColor">@android:color/transparent</item>
+      <item name="android:navigationBarColor">@android:color/transparent</item>
+      <item name="android:windowLayoutInDisplayCutoutMode"
+            tools:targetApi="p">shortEdges</item>
+  </style>
+
+  Motivo: `Theme.Material3.DayNight.NoActionBar` NÃO existe como tema de
+  plataforma e já quebrou o build antes (AAPT: resource not found).
+
+21.3 `AndroidManifest.xml`
+--------------------------
+  - `android:icon="@drawable/ic_launcher"` (vetor, não mipmap PNG — evita
+    erro de recurso ausente).
+  - `android:roundIcon="@drawable/ic_launcher"`.
+  - Activity com `android:screenOrientation="portrait"` e
+    `android:exported="true"`.
+  - Serviço `ScreenRecordService` com
+    `android:foregroundServiceType="mediaProjection"`.
+  - `android:windowSoftInputMode="adjustResize"` na Activity (para o
+    composer subir com o teclado).
+
+21.4 Gradle Wrapper
+-------------------
+  - `gradle/wrapper/gradle-wrapper.properties` com
+    `distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip`
+  - `gradlew` deve ter quebras de linha LF (0 ocorrências de CRLF).
+  - `gradlew`, `gradlew.bat`, `gradle-wrapper.jar` e
+    `gradle-wrapper.properties` são OBRIGATÓRIOS no ZIP.
+
+21.5 Comandos (para o Claude testar, se tiver ambiente)
+-------------------------------------------------------
+  Windows:
+    set ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk
+    set JAVA_HOME=C:\Program Files\Java\jdk-17  (ou jdk-21)
+    gradlew.bat assembleDebug --no-daemon --max-workers=2
+
+  Linux/macOS/CI:
+    ./gradlew assembleDebug --no-daemon --stacktrace
+
+  Saída: `app/build/outputs/apk/debug/app-debug.apk`
+
+21.6 Erros já vistos (NÃO repetir)
+----------------------------------
+  - Fragmento de texto de conversa de IA no fim de um .kt -> "Expecting '}'".
+  - Chave `}` extra no fim de um Composable -> erro de compilação.
+  - `Modifier.fillBox()` inexistente -> use `fillMaxWidth`/`fillMaxSize`.
+  - Referência a flag renomeada (`FeatureFlags.enableVolumeKeys` vs
+    `enableVolumeKeyInterception`) -> unresolved reference.
+  - Tema Material3 de plataforma inexistente -> erro de AAPT.
+  - mipmap ausente -> erro de recurso.
+  - Build com -Xmx2048m em máquina de 6 GB -> JVM crash (hs_err_pid).
+
+
+================================================================================
+22. ENTREGA — O QUE O CLAUDE DEVE PRODUZIR
+================================================================================
+
+22.1 Três artefatos
+-------------------
+  (1) `projeto.zip`
+      - Contém o projeto INTEIRO na RAIZ do ZIP (sem pasta "StudioLive/"
+        por cima).
+      - Substitui o zip atual do repositório.
+      - Pronto para o workflow descompactar com `unzip -o projeto.zip`.
+
+  (2) Pasta `StudioLive/`
+      - Mesmo conteúdo do zip, extraído, para o usuário substituir a pasta
+        local `C:\Users\psnna\OneDrive\Desktop\Helpme\fakestream\StudioLive`.
+
+  (3) `DOCUMENTACAO_StudioLive.txt`
+      - Documento completo de manutenção (seção 27).
+
+22.2 Conteúdo obrigatório do ZIP (raiz)
+---------------------------------------
+  build.gradle.kts
+  settings.gradle.kts
+  gradle.properties
+  gradlew
+  gradlew.bat
+  codemagic.yaml                  (manter)
+  gradle/wrapper/gradle-wrapper.jar
+  gradle/wrapper/gradle-wrapper.properties
+  app/build.gradle.kts
+  app/proguard-rules.pro
+  app/src/main/AndroidManifest.xml
+  app/src/main/res/**
+  app/src/main/java/**
+  docs/**                         (imagens de referência + MEDIDAS.md)
+  DOCUMENTACAO_StudioLive.txt
+
+22.3 Proibido dentro do ZIP
+---------------------------
+  - Pasta `StudioLive/` na raiz.
+  - `local.properties`
+  - `.gradle/`, `.idea/`, `.kotlin/`
+  - `build/`, `app/build/`
+  - `*.log`, `hs_err_pid*.log`
+  - `.github/` (o workflow vive no repositório, não no zip)
+  - `.git/`
+  - Caminhos com barra invertida `\` (usar sempre `/`)
+
+22.4 Verificação obrigatória do ZIP (o Claude deve executar)
+------------------------------------------------------------
+  Liste as entradas e confirme:
+    [ ] `gradlew` na raiz
+    [ ] `gradlew.bat` na raiz
+    [ ] `gradle/wrapper/gradle-wrapper.jar` presente
+    [ ] `gradle/wrapper/gradle-wrapper.properties` presente
+    [ ] `app/build.gradle.kts` presente
+    [ ] `app/src/main/AndroidManifest.xml` presente
+    [ ] ZERO entradas começando com `StudioLive/`
+    [ ] ZERO entradas com `\`
+    [ ] ZERO `local.properties`, `.gradle/`, `build/`
+  E teste de verdade: extrair em pasta vazia com `unzip` e conferir que a
+  raiz contém `gradlew`, `app/`, `gradle/`.
+
+22.5 Ícone do app
+-----------------
+  - `res/drawable/ic_launcher.xml` (vetor 108x108 dp, fundo sólido + símbolo).
+  - Manter cores da marca do novo design (magenta/vermelho da live).
+
+
+================================================================================
+23. REGRAS DE CÓDIGO
+================================================================================
+
+  1. Kotlin idiomático, sem warnings novos.
+  2. Um arquivo por responsabilidade; máximo ~250 linhas por arquivo.
+  3. Comentários em PORTUGUÊS, curtos, explicando "por quê", não "o quê".
+  4. Nenhum `TODO` sem dono e sem prazo. Se algo é futuro, escreva
+     `// FUTURO: ...` e documente na seção correspondente do TXT.
+  5. Nenhum `println`. Use `Log.d("StudioLive", ...)` apenas se necessário.
+  6. Nenhum número mágico: tudo em `DesignTokens`.
+  7. Nenhuma string de UI hardcoded fora de `strings.xml`/`StringsPtBr`.
+  8. Nomes de funções/composable em português quando forem de domínio
+     ("aoVivo", "comentario"), em inglês quando forem técnicos
+     ("bindCamera", "collectAsState"). Consistência > preferência.
+  9. `@Composable` sempre com `Modifier` como último parâmetro do tipo
+     `Modifier = Modifier` (padrão Compose).
+ 10. Nenhum acesso a `Context` dentro de `@Composable` sem
+     `LocalContext.current`.
+ 11. `collectAsStateWithLifecycle()` em vez de `collectAsState()` quando
+     disponível (adiciona `lifecycle-runtime-compose`? Se não estiver na
+     lista, use `collectAsState()` e documente).
+ 12. Sem `GlobalScope`.
+ 13. Todo `LaunchedEffect` com chave explícita.
+ 14. Nenhum arquivo com código truncado, comentário de IA, ou texto solto
+     fora de bloco. Isso já quebrou o build antes.
+
+
+================================================================================
+24. GITHUB ACTIONS — WORKFLOW INTOCÁVEL
+================================================================================
+
+24.1 Regra
+  NÃO altere `.github/workflows/build-apk.yml`. Ele já está funcionando no
+  repositório remoto. O usuário só quer trocar o `projeto.zip`.
+
+  Se, por algum motivo ABSOLUTAMENTE necessário, o workflow precisar mudar,
+  entregue o arquivo separado e explique o passo a passo de como atualizá-lo
+  pela interface web do GitHub.
+
+24.2 Conteúdo atual do workflow (referência — deve continuar igual)
+-------------------------------------------------------------------
+  name: Gerar APK
+
+  on:
+    push:
+      branches: [ "main" ]
+    workflow_dispatch:
+
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout do repositório
+          uses: actions/checkout@v4
+
+        - name: Extrair projeto.zip
+          run: |
+            unzip -o projeto.zip
+            echo "=== Conteúdo da raiz ==="
+            ls -la
+            test -f gradlew
+            test -f gradle/wrapper/gradle-wrapper.jar
+            test -f gradle/wrapper/gradle-wrapper.properties
+
+        - name: Configurar JDK 17
+          uses: actions/setup-java@v4
+          with:
+            java-version: '17'
+            distribution: 'temurin'
+            cache: gradle
+
+        - name: Compilar APK debug
+          run: |
+            chmod +x gradlew
+            sed -i 's/\r$//' gradlew
+            ./gradlew assembleDebug --no-daemon --stacktrace
+
+        - name: Enviar APK
+          uses: actions/upload-artifact@v4
+          with:
+            name: app-debug-apk
+            path: app/build/outputs/apk/debug/app-debug.apk
+            if-no-files-found: error
+
+24.3 Implicações para o ZIP
+  - O zip é extraído na RAIZ do repositório. Portanto nada de pasta
+    "StudioLive/" dentro dele.
+  - O workflow exige `gradlew` na raiz e o wrapper em `gradle/wrapper/`.
+  - O artefato gerado é `app-debug-apk` contendo `app-debug.apk`.
+
+
+================================================================================
+25. PASSO A PASSO — COMO O USUÁRIO SUBSTITUI O PROJETO NO GITHUB
+================================================================================
+
+(O Claude deve repetir isto na resposta final, de forma clara.)
+
+  Repositório: https://github.com/MassayoshiOgawa/FakeStream  (branch main)
+
+  MÉTODO A — Pela interface web (sem terminal) — RECOMENDADO
+  ----------------------------------------------------------
+  1. Abra o repositório no navegador e confirme que está na branch `main`.
+  2. Clique no botão "Add file" (canto superior direito da lista de arquivos)
+     e escolha "Upload files".
+  3. Arraste o NOVO `projeto.zip` para a área de upload.
+     - O nome precisa ser EXATAMENTE `projeto.zip`.
+     - O GitHub vai substituir o arquivo existente (ele aparece com o mesmo
+       nome na lista de mudanças).
+  4. (Opcional, se o Claude entregou) arraste também
+     `DOCUMENTACAO_StudioLive.txt`.
+  5. Role até o fim, escreva uma mensagem de commit, ex.:
+       "feat: novo visual da tela ao vivo"
+     e clique em "Commit changes".
+  6. Vá em "Actions" (aba no topo do repositório).
+  7. Abra o run mais recente chamado "Gerar APK".
+     - Se estiver amarelo (bolinha girando) = em andamento.
+     - Verde = sucesso.
+     - Vermelho = falhou (ver seção 26.4).
+  8. Quando ficar verde, role até a seção "Artifacts" no rodapé do run.
+
+  MÉTODO B — Pelo GitHub Desktop (também sem terminal)
+  ----------------------------------------------------
+  1. Clone/abra o repositório no GitHub Desktop.
+  2. Substitua o `projeto.zip` na pasta local.
+  3. O GitHub Desktop mostra a alteração -> escreva a mensagem -> "Commit to
+     main" -> "Push origin".
+  4. Siga do passo 6 do Método A.
+
+  IMPORTANTE
+  ----------
+  - NÃO é necessário apagar o repositório, nem criar outro.
+  - NÃO é necessário mexer no workflow.
+  - A pasta local `StudioLive/` NÃO precisa ir para o GitHub (ela não é
+    usada pelo build na nuvem). Ela serve apenas para o usuário abrir no
+    Android Studio, se quiser.
+  - Se o usuário trocar também a pasta local `StudioLive/`, basta apagar a
+    antiga e colar a nova no mesmo lugar:
+      C:\Users\psnna\OneDrive\Desktop\Helpme\fakestream\StudioLive
+
+
+================================================================================
+26. COMO BAIXAR O APK DO GITHUB ACTIONS
+================================================================================
+
+  1. Abra: https://github.com/MassayoshiOgawa/FakeStream/actions
+  2. Clique no run mais recente com nome "Gerar APK" e ícone verde.
+  3. Role a página até a parte de baixo, seção "Artifacts".
+  4. Clique em `app-debug-apk`.
+     - O navegador baixa um arquivo `app-debug-apk.zip`.
+  5. Extraia esse zip -> dentro está `app-debug.apk`.
+  6. Transfira o `app-debug.apk` para o Motorola G84 5G (cabo USB, Google
+     Drive, WhatsApp para si mesmo, etc.).
+  7. No celular, toque no APK. O Android vai pedir para permitir instalação
+     de "fontes desconhecidas" para o app de origem (Arquivos/Chrome) —
+     permita e conclua a instalação.
+  8. Observação: artefatos do GitHub expiram (padrão 90 dias). Se o botão não
+     existir, rode o workflow de novo (Actions -> "Gerar APK" ->
+     "Run workflow").
+
+  Se o build falhar (run vermelho):
+    - Abra o run, clique no job "build", expanda o step "Compilar APK debug".
+    - Copie as últimas 40 linhas do log e envie ao Claude.
+    - O erro mais comum é arquivo do ZIP com caminho errado (pasta na raiz).
+
+
+================================================================================
+27. DOCUMENTACAO_StudioLive.txt — CONTEÚDO OBRIGATÓRIO
+================================================================================
+
+O Claude deve gerar este TXT separado. Ele é o manual para uma IA futura que
+nunca viu o projeto. Deve ter, no mínimo:
+
+  CAPA ................ nome do projeto, versão, data, stack, dispositivo alvo
+  SUMÁRIO ............. com numeração e títulos
+  1. VISÃO GERAL ...... o que o app é, o que faz, o que não faz
+  2. IDIOMA E TOM ..... regra do pt-BR, glossário
+  3. DISPOSITIVO ALVO . specs do G84 5G, largura de referência, insets
+  4. ARQUITETURA ...... árvore de pastas comentada, fluxo de dados
+  5. DESIGN SYSTEM .... cores (com HEX reais), tipografia, espaçamento,
+                        raios, camadas Z, scrims, motion
+  6. TELA AO VIVO ..... anatomia por zona + matriz de medidas preenchida
+  7. INVENTÁRIO DE BOTÕES ... tabela botão -> ícone -> ação -> chave de
+                        visibilidade -> arquivo onde está implementado
+  8. MOTOR DE LAYOUT .. como o cálculo de bandas funciona, com fórmulas
+  9. PERSISTÊNCIA ..... tabela completa de chaves DataStore + padrões
+ 10. PERMISSÕES ....... lista, fluxo, o que fazer em cada negativa
+ 11. FUNCIONALIDADES .. câmera, microfone, avatar, título, espectadores
+ 12. CONFIGURAÇÕES .... estrutura da tela, seção por seção
+ 13. BUILD ............ versões exatas, gradle.properties, comandos,
+                        erros conhecidos e como resolver
+ 14. CI/CD ............ workflow, como funciona, como baixar o APK
+ 15. COMO ADICIONAR UMA FEATURE NOVA
+        passo 1: criar a chave em PreferenceKeys + AppPreferences
+        passo 2: adicionar campo no modelo (LiveUiConfig/UserProfile)
+        passo 3: expor no ViewModel (StateFlow + função de escrita)
+        passo 4: adicionar o toggle em ConfigScreen
+        passo 5: consumir no componente da live
+        passo 6: documentar nas tabelas das seções 7 e 9
+ 16. PADRÕES DE CÓDIGO E PROIBIÇÕES
+ 17. CHECKLIST ANTES DE ENTREGAR
+ 18. HISTÓRICO DE VERSÕES
+ 19. PERGUNTAS FREQUENTES (por que X foi feito assim)
+
+  Regra: toda informação "não óbvia" deve estar neste documento. A IA futura
+  não deve precisar abrir 15 arquivos para entender o projeto.
+
+
+================================================================================
+28. O QUE O CLAUDE DEVE RESPONDER AO USUÁRIO NO FINAL
+================================================================================
+
+A resposta final deve conter, nesta ordem:
+
+  1. Resumo do que foi feito (curto, sem jargão excessivo).
+  2. Lista de arquivos entregues (com nomes exatos).
+  3. Como aplicar:
+       - substituir `projeto.zip` no GitHub (passo a passo da seção 25);
+       - substituir a pasta `StudioLive` local, se desejar.
+  4. Como baixar o APK (passo a passo da seção 26).
+  5. O que mudou em relação ao projeto antigo (bullet points).
+  6. Avisos/limitações honestas: o que ainda não é real (streaming, gravação
+     de tela) e por quê.
+  7. Se as imagens não estavam disponíveis: dizer isso e pedir.
+
+  Não escrever "não posso" sem tentar. Não inventar que testou build se não
+  testou. Se não puder compilar, diga exatamente o que validou (estrutura do
+  zip, referências de arquivo, etc.).
+
+
+================================================================================
+29. CHECKLIST FINAL DE ENTREGA (MARCAR TODOS)
+================================================================================
+
+  VISUAL
+  [ ] Layout da tela AO VIVO refeito do zero, fiel à IMAGEM 1
+  [ ] Comentários fiéis à IMAGEM 2 (aparência, posição, tamanho)
+  [ ] Contador de espectadores fiel ao visual da IMAGEM 2
+  [ ] Botões do topo-direita replicados
+  [ ] Botões da base-direita replicados
+  [ ] Nenhum resquício do layout antigo
+  [ ] Scrim topo/base garantindo legibilidade
+  [ ] Nenhum texto em inglês
+  [ ] "AO VIVO" em vez de "LIVE"
+  [ ] Ícone do app atualizado
+
+  FUNCIONAL
+  [ ] Trocar câmera frontal/traseira funciona sem recriar Activity
+  [ ] Botão único de microfone alterna mudo/ativo
+  [ ] "Nome exibido" funciona e persiste
+  [ ] "Título da live" funciona e substitui "youngezee"
+  [ ] Upload de imagem coloca foto no círculo do perfil
+  [ ] Remover foto funciona
+  [ ] TODAS as configurações sobrevivem a fechar/reabrir o app
+  [ ] Permissões pedidas na primeira inicialização
+  [ ] Fluxo de permissão negada tratado
+  [ ] Todos os botões da live têm toggle nas configurações
+  [ ] Toggles aplicam na hora, sem reiniciar
+  [ ] Esconder botões não deixa buracos (motor de bandas)
+  [ ] "Restaurar padrões" funciona
+
+  TÉCNICO
+  [ ] Compila (assembleDebug)
+  [ ] Sem dependências novas não justificadas
+  [ ] Sem números mágicos / sem strings em inglês
+  [ ] Sem código morto, sem texto solto, sem truncamento
+  [ ] ZIP com conteúdo na raiz, barras `/`, `gradlew` LF
+  [ ] ZIP sem build/, .gradle/, .idea/, local.properties, .github/
+  [ ] Workflow intocado
+  [ ] DOCUMENTACAO_StudioLive.txt completo, com sumário
+  [ ] Matriz de medidas preenchida e incluída na documentação
+
+
+================================================================================
+30. PROMPT DE ABERTURA (o usuário pode colar isto junto das imagens)
+================================================================================
+
+  "Segue o BRIEFING_CLAUDE_StudioLive_v2.txt e as duas imagens de
+   referência. Leia o briefing inteiro antes de começar. A IMAGEM 1 é a
+   tela principal e manda em tudo; a IMAGEM 2 serve SOMENTE para os
+   comentários e o visual do contador de espectadores. Refaça o app do zero
+   seguindo o briefing, mantendo a stack e o workflow que já funcionam.
+   Entregue: projeto.zip (conteúdo na raiz), pasta StudioLive e
+   DOCUMENTACAO_StudioLive.txt. No final, explique como substituo o projeto
+   no GitHub e como baixo o APK. Se faltar qualquer imagem, pare e me peça."
+
+================================================================================
+31. NOTA FINAL AO CLAUDE
+================================================================================
+
+Você é o segundo agente a tocar neste projeto. O primeiro deixou uma base
+que COMPILA e um pipeline que FUNCIONA — não destrua isso. A parte visual
+está ruim e é o que você vai refazer.
+
+O usuário vai continuar pedindo novas funcionalidades depois. Portanto:
+  - nomes claros,
+  - separação rígida de responsabilidades,
+  - documentação que não mente,
+  - zero código "esperto" e obscuro.
+
+Se em algum momento você não tiver certeza de uma medida, diga que é uma
+estimativa e registre a estimativa na matriz de medidas — mas nunca finja
+que mediu.
+
+FIM DO BRIEFING.
+================================================================================

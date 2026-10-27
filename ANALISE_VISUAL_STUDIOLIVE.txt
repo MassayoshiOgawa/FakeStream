@@ -1,0 +1,431 @@
+TITULO: ANALISE VISUAL DETALHADA - StudioLive
+BASE: Motorola Moto G84 5G (1080x2400, 20:9)
+FONTE: IMAGEM 1 + IMAGEM 2
+
+NOTA DE MÉTODO E LIMITES
+- Este documento descreve somente o que é visível nas duas imagens anexadas.
+- A IMAGEM 1 fornecida tem 380 x 744 px (RGB). A IMAGEM 2 fornecida tem 271 x 523 px (RGB). Essas são as dimensões reais dos arquivos recebidos, não as dimensões nativas garantidas da interface original.
+- A tela-alvo informada no briefing é 1080 x 2400 px. As imagens recebidas não têm essa resolução e suas proporções também não correspondem exatamente a 1080:2400. Portanto, não é possível afirmar que um elemento medido na imagem fornecida possuía aquele mesmo número de pixels na tela original do aparelho.
+- Neste documento, “medido” significa coordenada observada no arquivo anexado; “aproximado” significa limite visual estimado por causa de antialiasing, compressão, transparência, perspectiva ou baixa resolução; “estimativa escalada” significa projeção matemática, não uma medição nativa.
+- As conversões para dp são apenas referências aproximadas. dp (density-independent pixels, ou pixels independentes de densidade) não pode ser recuperado com precisão sem a densidade real usada para capturar/renderizar a interface. Para a IMAGEM 1, a estimativa comparativa usa 380 px de largura como equivalente a 411 dp, ou fator de aproximadamente 1,082 dp por pixel da imagem. Não aplicar essa conversão como especificação definitiva de implementação.
+- Cores indicadas como HEX são amostras visuais aproximadas, não uma leitura certificada de cada pixel da interface original. Ícones e letras antialiasados contêm pixels intermediários.
+- As duas imagens representam telas distintas/estados distintos. A IMAGEM 1 é a fonte para a tela principal ao vivo e a régua de ações. A IMAGEM 2 é a fonte para comentários e contador de espectadores. Não se deve completar uma imagem com elementos presumidos da outra.
+- Não há base visual suficiente para afirmar animações, pulsação, estados temporários, comportamento de toque ou funcionamento. O documento registra aparência estática.
+
+1. VISÃO GERAL
+
+1.1 IMAGEM 1 — tela principal “AO VIVO”
+- Arquivo recebido: 380 x 744 px.
+- Área externa escura/preta: contorno muito estreito nas bordas e região inferior. O conteúdo visual principal começa aproximadamente em x=6 px e y=5 px.
+- Pré-visualização de câmera: retângulo vertical aproximadamente de x=6 a x=373 e y=5 a y=668. Limites aproximados: largura 367 px, altura 663 px.
+- A área da câmera mostra principalmente uma superfície clara cinza-bege, sem pessoa visível. Há pequenas variações de luminosidade, sombras muito suaves e uma região escura inclinada entrando pelo canto superior direito. Uma faixa vertical muito escura e estreita aparece junto à borda esquerda em parte da altura.
+- O fundo não é uma cor chapada perfeitamente uniforme: há variações suaves de cinza, bege e branco sujo, compatíveis com a própria imagem capturada pela câmera. Não há evidência suficiente para separar qualquer possível processamento da câmera de um overlay de interface.
+- A parte superior da câmera não apresenta barra de status de sistema legível. Não são visíveis hora, bateria, Wi-Fi ou ícones típicos de status do Android.
+- A interface sobre a câmera tem elementos brancos, cinza-claros e um selo rosa/magenta “AO VIVO”.
+- A parte inferior é uma faixa preta quase sólida, aproximadamente de y=669 a y=743. Contém um campo arredondado “Adicione um comentário.” e quatro ícones à direita dele.
+- Não há lista de comentários visível na IMAGEM 1.
+- Não há contador numérico de espectadores visível na IMAGEM 1.
+- Não há botão “Comprar” visível na IMAGEM 1.
+- Não é possível confirmar blur aplicado ao vídeo inteiro. O vídeo está visualmente claro e ligeiramente suave, mas isso pode decorrer da cena/captura e da resolução da imagem.
+
+1.2 IMAGEM 2 — comentários e espectadores
+- Arquivo recebido: 271 x 523 px.
+- A área de vídeo ocupa aproximadamente x=0 a x=267, y=0 a y=447. O vídeo mostra uma pessoa sorrindo, com bandana escura, cabelo preso no alto, roupa preta e colares; ao fundo, interior iluminado em tons quentes.
+- A interface está sobreposta ao vídeo. A região inferior escurece gradualmente ou por uma camada escura para aumentar a legibilidade dos comentários e dos controles inferiores.
+- No topo aparecem avatar/nome do perfil, selo “LIVE”, contador “1.5k” e botão X.
+- A lista de comentários aparece sobre o vídeo, principalmente na metade inferior. Os itens têm avatares circulares pequenos à esquerda e textos claros, com nomes em branco/cinza e mensagens abaixo ou ao lado. Alguns nomes e mensagens são parcialmente difíceis de ler devido à baixa resolução.
+- Na região inferior da lista há uma frase de apoio a compra de badge e um botão “Buy”.
+- Abaixo do vídeo, a região preta contém campo “Comment” e três ícones visíveis à direita: um ícone quadrado com interrogação, um ícone de envio em forma de avião de papel e um coração contornado.
+- A IMAGEM 2 não deve ser usada para inferir a régua de ações da IMAGEM 1. O conjunto de controles laterais da IMAGEM 2 é diferente ou não está presente de forma equivalente.
+
+2. MEDIDAS DE REFERÊNCIA (px + dp estimado)
+
+2.1 IMAGEM 1 — coordenadas do arquivo recebido
+Sistema de coordenadas: origem (0,0) no canto superior esquerdo; x cresce para a direita e y para baixo.
+- Arquivo inteiro: 380 x 744 px.
+- Limite aproximado da pré-visualização de câmera: x=6, y=5, largura=367, altura=663 px.
+- Faixa inferior escura: começa em y≈669 px e termina no limite inferior y=743 px; altura aproximada 75 px.
+- Header: avatar aproximadamente x=20–50, y=15–46; nome/indicador de menu aproximadamente x=60–183, y=23–41; selo “AO VIVO” aproximadamente x=219–287, y=15–48; contador de menu/mais não é claramente legível, mas há um pequeno símbolo perto de x=307, y=31; botão X aproximadamente centrado em x=349, y=31.
+- Régua lateral direita: coluna de ícones centrada aproximadamente em x=347–350. Ícone de microfone centrado em y≈79; câmera em y≈122; setas de alternância em y≈164; brilhos/efeitos em y≈207. Os centros são estimativas visuais.
+- Campo “Adicione um comentário.”: contorno arredondado aproximado x=15–212, y=683–723; centro vertical ≈703 px.
+- Ícone de vídeo/adicionar: região x≈225–249, y≈692–714.
+- Ícone de pessoas/adicionar: região x≈265–290, y≈691–715.
+- Ícone de ajuda/pergunta: região x≈306–327, y≈691–715.
+- Ícone de envio/avião de papel: região x≈343–367, y≈692–714.
+- A faixa inferior e os controles estão muito próximos do limite inferior da captura. Não há espaço suficiente para afirmar dimensões de safe area do Android.
+
+Estimativa dp exclusivamente comparativa para IMAGEM 1, usando 380 px ≈ 411 dp:
+- Fator estimado: 1 px da imagem ≈ 1,082 dp.
+- Pré-visualização de câmera: ≈397 dp de largura x ≈717 dp de altura na escala comparativa.
+- Faixa inferior: ≈81 dp de altura.
+- Campo de comentário: ≈213 dp de largura x ≈43 dp de altura.
+- Estes números não são medidas nativas confirmadas do Moto G84 5G. A altura projetada não se encaixa de forma direta na tela-alvo 1080 x 2400, o que reforça que a imagem pode ter sido redimensionada/cortada na origem ou no envio.
+
+2.2 IMAGEM 2 — coordenadas do arquivo recebido
+- Arquivo inteiro: 271 x 523 px.
+- Área de vídeo/interface sobre vídeo: aproximadamente x=0–267, y=0–447.
+- Área preta inferior: aproximadamente y=448–522, altura aproximada 75 px.
+- Header: avatar/nome no canto superior esquerdo, aproximadamente x=6–93, y=5–25; selo LIVE x≈165–195, y≈5–26; contador x≈201–236, y≈5–26; X x≈245–263, y≈5–24.
+- Comentários: primeiros itens começam aproximadamente em y≈260–275; a lista segue até cerca de y≈424. Os limites são estimados, pois textos, avatares e camada de fundo se misturam à imagem do vídeo.
+- Linha “Buy a badge to support youngzee” aproximadamente x=7–185, y≈425–444; botão “Buy” aproximadamente x=224–260, y≈426–446.
+- Campo “Comment” na área preta inferior aproximadamente x=10–159, y≈490–518.
+- Ícone quadrado com interrogação: x≈176–195, y≈492–514.
+- Ícone avião de papel: x≈207–226, y≈493–514.
+- Ícone coração: x≈236–258, y≈493–514.
+- Não aplicar a escala dp da IMAGEM 1 à IMAGEM 2: a largura de arquivo é diferente e não há prova de que as duas capturas foram reduzidas pelo mesmo fator.
+
+3. TOPOBAR - BLOCOS SUPERIORES
+
+3.1 IMAGEM 1
+- A barra superior está sobreposta diretamente à área da câmera, sem uma barra retangular opaca evidente.
+- Avatar circular: círculo de aproximadamente 30 x 30 px, situado próximo ao canto superior esquerdo. Contém uma foto de pessoa em escala muito pequena. O aro/borda, se existe, não pode ser separado com certeza do recorte circular e do fundo.
+- Nome: texto “guia.do.celular”, em branco/cinza muito claro, com peso visual semibold ou bold moderado. O texto começa aproximadamente em x=60 px. A altura visível das letras é cerca de 13–15 px.
+- À direita do nome há uma pequena seta/chevron para baixo, clara, indicando menu visualmente. Não há título secundário separado visível.
+- Selo “AO VIVO”: retângulo rosa/magenta com cantos arredondados, aproximadamente 68 x 33 px. Posição aproximada x=219, y=15. Texto branco, maiúsculo, centralizado, pequeno e em negrito. A cor aparenta rosa intenso próximo de #E90063 a #F00068, mas não é certificada.
+- Pequeno ícone ou pontuação perto de x≈307, y≈31: aparece uma forma cinza/branca pequena, pouco legível. Não descrever como contador numérico porque não há número legível.
+- Fechar: X branco no canto superior direito, aproximadamente 17–20 px de extensão total, centro em (349,31). Os dois traços são finos e diagonais.
+- Não há contador de espectadores legível na IMAGEM 1.
+- Não há título de transmissão separado visível.
+
+3.2 IMAGEM 2
+- Avatar circular muito pequeno, aproximadamente 17–19 px de diâmetro, em x≈7–25, y≈5–23.
+- Nome “youngzee” em branco, tamanho pequeno, com pequeno triângulo/chevron ao lado.
+- Selo “LIVE”: retângulo rosa/magenta de cantos arredondados, aproximadamente 30 x 20 px, x≈165, y≈5. Texto branco, maiúsculo, bold.
+- Contador de espectadores: retângulo escuro/translúcido com cantos arredondados, aproximadamente 35 x 20 px, x≈201, y≈5. Contém ícone minúsculo de pessoa/espectadores e texto “1.5k” em branco/cinza claro. O valor legível é “1.5k”.
+- Fechar: X claro, fino, centro aproximado (253,15), extensão total de cerca de 13–16 px.
+- A composição do topo da IMAGEM 2 não é idêntica à da IMAGEM 1; não transferir a presença do contador para a IMAGEM 1.
+
+4. RÉGUA DE AÇÕES LATERAL
+
+Fonte exclusiva: IMAGEM 1.
+Aparecem exatamente quatro ícones na coluna lateral direita, de cima para baixo:
+1. Microfone.
+2. Câmera de vídeo.
+3. Duas setas curvas/alternância.
+4. Brilhos/efeitos (um brilho maior e pequenos brilhos menores).
+
+Detalhes:
+- Coluna vertical alinhada perto da borda direita, centros aproximadamente em x=348 px.
+- Microfone: ícone de traço branco/cinza claro, corpo oval vertical com haste/base curva. Centro y≈79 px; caixa visual aproximada 17 x 24 px.
+- Câmera: contorno de câmera de vídeo, corpo retangular arredondado e pequena projeção triangular à direita. Centro y≈122 px; caixa visual aproximada 23 x 21 px.
+- Alternância: duas setas curvas claras, uma orientada para cada sentido, formando um símbolo de troca. Centro y≈164 px; caixa aproximada 23 x 22 px.
+- Brilhos: estrela/brilho de quatro pontas maior com dois brilhos menores ao redor. Centro y≈207 px; caixa aproximada 22 x 23 px.
+- Distância vertical entre centros: aproximadamente 43 px, 42 px e 43 px.
+- Distância do centro dos ícones à borda direita do arquivo: cerca de 31–33 px. Como a prévia da câmera termina em x≈373, a margem entre o centro e o limite da prévia é de aproximadamente 25 px.
+- Não há círculos ou cápsulas de fundo claramente visíveis atrás dos ícones. Os ícones parecem flutuar diretamente sobre a imagem da câmera.
+- Não há efeito de vidro/botão preenchido identificável nessa coluna.
+- O microfone aparenta estar no estado visual padrão, sem indicação inequívoca de mudo: não há barra diagonal de mute visível. Isso descreve somente o desenho estático; não prova o estado funcional do áudio.
+- Nenhum ícone parece maior que os demais de forma marcante; a câmera tem uma silhueta ligeiramente mais larga e o ícone de brilhos ocupa uma área semelhante.
+- Não há controle lateral visível abaixo do ícone de brilhos na IMAGEM 1.
+- A IMAGEM 2 não apresenta esta mesma régua de quatro ações de forma visível e equivalente.
+
+5. ÁREA INFERIOR / BARRA
+
+5.1 IMAGEM 1
+- Faixa inferior preta quase sólida, começando aproximadamente em y=669 px. A transição com a pré-visualização é uma linha horizontal nítida, sem divisor decorativo destacado.
+- Campo “Adicione um comentário.”:
+  - Retângulo comprido com extremidades totalmente arredondadas, contorno cinza escuro/claro de baixa intensidade e interior preto ou quase preto.
+  - Limites aproximados: x=15–212 px, y=683–723 px.
+  - Dimensão aproximada: 197 x 40 px.
+  - Raio visual próximo de metade da altura, estilo cápsula.
+  - Texto alinhado à esquerda, branco/cinza claro, começando em x≈27 px; baseline visual centralizada verticalmente.
+  - Não há cursor, texto digitado nem teclado visível.
+- À direita do campo, na mesma linha:
+  1. Ícone de retângulo/vídeo com um símbolo de adição, branco, aproximadamente x=226–248 px.
+  2. Ícone de duas pessoas/silhuetas com sinal de adição, branco, aproximadamente x=266–289 px.
+  3. Ícone de balão circular com ponto de interrogação, branco, aproximadamente x=307–326 px.
+  4. Ícone de avião de papel/envio, branco, aproximadamente x=344–365 px.
+- Os quatro ícones não têm botões circulares preenchidos visíveis. Parecem ícones lineares sem fundo individual.
+- Espaçamento visual entre centros dos quatro ícones: cerca de 40 px, 39 px e 39 px.
+- A faixa não apresenta texto “Comprar”, badge ou preço.
+- Não há barra de navegação Android visível, nem os três botões de navegação, nem indicador de gesto claramente identificável na captura.
+- A margem inferior efetiva dos ícones não deve ser tratada como safe area real: a captura termina no limite do arquivo.
+
+5.2 IMAGEM 2
+- Região inferior preta começa aproximadamente em y=448 px.
+- Campo “Comment”: cápsula contornada em cinza escuro, x≈10–159 px, y≈490–518 px. O texto “Comment” é cinza-claro, alinhado à esquerda, pequeno. A altura aproximada é 28 px.
+- Ao lado direito do campo há três ícones:
+  1. Quadrado arredondado com ponto de interrogação, aproximadamente x=176–195 px.
+  2. Avião de papel/envio, aproximadamente x=207–226 px.
+  3. Coração contornado, aproximadamente x=236–258 px.
+- Ícones claros sobre fundo preto; sem círculos preenchidos claramente visíveis.
+- A IMAGEM 2 tem um botão “Buy” na faixa do vídeo, acima da barra inferior; não é o mesmo elemento que o campo “Comment”.
+- Não inserir o campo “Adicione um comentário.” da IMAGEM 1 na IMAGEM 2; o texto visível nesta segunda imagem é “Comment”.
+
+6. COMENTÁRIOS E CONTADOR (BASEADO NA IMAGEM 2)
+
+6.1 Lista e sobreposição
+- Os comentários aparecem sobre a imagem de vídeo, não dentro de um painel retangular opaco separado.
+- Há uma camada escura/translúcida por trás ou sobre a área inferior do vídeo. A escurecida aumenta em direção à parte inferior, com aparência de scrim/gradiente. O limite exato do gradiente não pode ser isolado com segurança porque o próprio vídeo contém sombras e mudanças de iluminação.
+- A lista fica principalmente entre y≈260 e y≈425 px.
+- Estão visíveis aproximadamente cinco mensagens/linhas de comentário, além da frase de apoio a badge na parte inferior. O número de itens completos depende de considerar mensagens com mais de uma linha como um único comentário.
+- Os avatares são pequenos círculos, aproximadamente 20–23 px de diâmetro, alinhados em coluna perto de x≈8–30 px. Alguns avatares mostram fotos; outros têm áreas de cor mais saturada. Não há borda uniforme claramente distinguível em todos.
+- Os textos começam aproximadamente em x≈36–40 px.
+- O nome do usuário aparece em cinza/branco, pequeno, e a mensagem aparece em branco mais forte ou em linha adjacente. Há mistura de pesos e pequenas marcas/emojis coloridos.
+- Os comentários não têm bolhas individuais retangulares claramente delimitadas. A leitura é de texto sobre o vídeo com uma sombra/camada escura geral, não cartões separados.
+- Espaçamento vertical entre grupos de comentários: variável, cerca de 27–36 px conforme a quantidade de linhas. Isso é estimativa visual.
+- Comentários legíveis ou parcialmente legíveis:
+  - “dark_emeralds” e mensagem “Good Morning!!”
+  - “hey_sarah2002 bought a badge” seguido de pequenos símbolos/badges rosas
+  - “photosbyem” e mensagem “Getting ready to start my day!”
+  - “travis_shreds18” e mensagem “So happy to catch this LIVE!”
+  - Há uma linha/nome acima de “dark_emeralds” que está muito apagada e não deve ser reconstruída como texto certo.
+- Há elementos pequenos coloridos ao lado de algumas mensagens, incluindo corações/ícones rosa e roxo. Não é possível determinar cada desenho com exatidão a partir da resolução anexada.
+- A área dos comentários termina perto da frase de compra de badge. Não há barra de rolagem visível.
+- Não há indicador de scroll vertical visível.
+- A parte inferior da lista possui fade/escurecimento visual, mas não se pode separar com certeza se é um gradiente aplicado à interface ou a iluminação da imagem original.
+
+6.2 Linha de badge/compra
+- Texto visível: “Buy a badge to support youngzee”.
+- Texto claro, pequeno, aproximadamente x=7 px, y=427–439 px.
+- Botão “Buy” à direita, cápsula cinza-clara/translúcida, aproximadamente x=224–260 px, y=426–446 px.
+- Texto “Buy” em cinza escuro/preto, pequeno e centralizado.
+- O botão tem extremidades arredondadas e fundo claro sem borda forte.
+- Não há preço visível.
+
+6.3 Contador
+- O contador está no header da IMAGEM 2, e não junto à lista de comentários.
+- Cápsula escura/translúcida com texto “1.5k” e pequeno ícone de espectadores.
+- Limites aproximados: x=201–236 px, y=5–26 px.
+- Texto em branco/cinza-claro, muito pequeno, alinhado horizontalmente.
+- Não é possível inferir o número exato de pessoas por trás do formato abreviado “1.5k”.
+- Não transferir este contador para a IMAGEM 1, onde ele não está visível.
+
+7. PALETA DE CORES (HEX)
+
+As cores abaixo são estimativas visuais a partir dos arquivos fornecidos; não são garantias das cores originais antes de compressão, captura de tela ou redimensionamento.
+
+- Preto da faixa inferior IMAGEM 1: aproximadamente #050505 a #0A0A0A.
+- Preto da faixa inferior IMAGEM 2: aproximadamente #030303 a #080808.
+- Cinza do contorno do campo de comentário: aproximadamente #454545 a #666666.
+- Texto claro dos campos e controles: aproximadamente #F2F2F2 a #FFFFFF.
+- Texto secundário cinza: aproximadamente #BDBDBD a #D0D0D0.
+- Selo “AO VIVO” / “LIVE”: rosa-magenta intenso, aproximadamente #E90063 a #F00068.
+- Fundo do contador da IMAGEM 2: cinza muito escuro translúcido, visualmente próximo de #333333 a #454545 misturado com o vídeo.
+- Botão “Buy”: cinza-claro, aproximadamente #D8D8D8 a #E7E7E7.
+- Texto “Buy”: aproximadamente #444444 a #555555.
+- Prévia de câmera IMAGEM 1: cinzas-bege claros variáveis, aproximadamente #B7B6AF, #C3C2BB, #D0CFC8 e áreas próximas de #E0DFD8. São amostras representativas da cena, não uma cor única de fundo.
+- Cena da IMAGEM 2: tons de pele e ambiente quente; não existe uma cor de fundo única. A camada escura da interface se mistura à fotografia.
+- Avatares e emblemas de comentários: cores variadas, sem paleta fixa recuperável.
+- Não há evidência suficiente para fornecer valores HEX exatos de opacidade/alpha. Não declarar #AARRGGBB como valor medido.
+- Não há evidência de neon, brilho colorido ou sombra colorida em volta dos controles.
+
+8. TIPOGRAFIA (TAMANHOS/PESOS/CORES)
+
+- Família percebida: sans-serif de interface móvel, formas simples e neutras. Não é possível identificar a família exata com certeza pela imagem rasterizada.
+- Header/nome de perfil da IMAGEM 1: aproximadamente 13–15 px de altura visível de caracteres; branco/cinza claro; peso médio a semibold.
+- Selo “AO VIVO”: letras maiúsculas, aproximadamente 10–12 px de altura visível; branco; peso bold.
+- Ícones: traço branco/cinza claro, linhas finas ou médias; aparência outline (contorno), não preenchimento sólido.
+- Texto “Adicione um comentário.”: aproximadamente 13–15 px de altura visível; cinza claro; peso regular.
+- Header da IMAGEM 2: nome e contador muito pequenos, aproximadamente 8–10 px de altura visível.
+- Selo “LIVE” da IMAGEM 2: texto em maiúsculas, aproximadamente 8–10 px de altura visível; bold.
+- Comentários IMAGEM 2: aproximadamente 8–10 px de altura visível para nomes e mensagens; nomes em branco/cinza; mensagens em branco mais claro. A baixa resolução limita a estimativa.
+- Texto “Buy a badge to support youngzee”: aproximadamente 8–9 px de altura visível.
+- Campo “Comment”: aproximadamente 10–11 px de altura visível.
+- Não é possível medir line-height tipográfico nativo com precisão. As alturas acima descrevem a altura aparente dos glifos na imagem anexada, não o tamanho da fonte configurado no aplicativo.
+- Não afirmar uma família específica como Roboto ou Instagram Sans sem evidência suficiente.
+
+9. ESPAÇAMENTOS E GAPS
+
+9.1 IMAGEM 1
+- Margem do avatar ao limite esquerdo da prévia: aproximadamente 14 px.
+- Espaço entre avatar e começo do nome: aproximadamente 9–11 px.
+- Espaço entre nome/seta e selo “AO VIVO”: aproximadamente 30 px, embora a delimitação exata do nome/seta seja visualmente aproximada.
+- Selo “AO VIVO” até pequeno símbolo da direita: cerca de 19–21 px.
+- Símbolo pequeno até X: cerca de 28–31 px.
+- Centros dos ícones laterais: separação vertical de aproximadamente 42–43 px.
+- Campo de comentário até primeiro ícone: cerca de 13 px entre o fim do contorno e a caixa visual do ícone.
+- Intervalo entre ícones inferiores: aproximadamente 16–18 px de espaço visual entre caixas, variando com o formato.
+- Margem esquerda do campo inferior: cerca de 9 px a partir do início da faixa preta (x≈6).
+- Margem direita do último ícone até borda do arquivo: aproximadamente 13–15 px.
+- A interface não apresenta alinhamento a uma grade mensurável com certeza; medidas são coordenadas observadas, não tokens de layout.
+
+9.2 IMAGEM 2
+- Header fica a poucos pixels do topo, sem margem superior ampla.
+- Avatares dos comentários ficam próximos da borda esquerda; texto começa cerca de 8–12 px depois do avatar.
+- Grupos de comentários têm espaçamento vertical variável, de acordo com linhas de mensagem.
+- Linha de badge tem margem esquerda de cerca de 7 px e botão “Buy” encostado visualmente na região direita, deixando pequena margem.
+- Campo “Comment” tem cerca de 10 px de margem esquerda e cerca de 10–13 px de margem inferior aparente.
+- Ícones inferiores ficam distribuídos horizontalmente com intervalos aproximados de 11–13 px entre suas caixas visuais.
+- Não converter estes espaçamentos em valores de implementação sem conferir a imagem em resolução nativa.
+
+10. EFEITOS (VIDRO/BLUR/GRADIENTE/BORDA/SOMBRA)
+
+- IMAGEM 1 — faixa inferior: fundo preto quase opaco, sem textura aparente.
+- IMAGEM 1 — campo de comentário: contorno fino cinza, preenchimento escuro, formato cápsula. Não há sombra externa forte perceptível.
+- IMAGEM 1 — ícones laterais: sem fundo individual visível; contraste criado pelo traço claro sobre o vídeo.
+- IMAGEM 1 — topo: sem placa de fundo retangular evidente. O texto e os controles parecem sobrepostos diretamente à imagem.
+- IMAGEM 1 — selo “AO VIVO”: fundo magenta sólido aparente, cantos arredondados; sem gradiente ou sombra nítida que possa ser afirmada.
+- IMAGEM 2 — contador: cápsula escura com aparência translúcida; a transparência exata não é recuperável.
+- IMAGEM 2 — botão “Buy”: cápsula cinza-clara, sem sombra nítida.
+- IMAGEM 2 — comentários: camada de escurecimento/scrim (camada semitransparente para aumentar contraste) sobre a parte inferior do vídeo; aparência compatível com gradiente escuro progressivo, mas o limite e os parâmetros não podem ser medidos com segurança.
+- Não há prova suficiente de blur de fundo real. Os elementos não mostram refração/desfoque distintivo do vídeo através de um painel de vidro; não descrever como glassmorphism confirmado.
+- Não há sombra projetada clara sob cada avatar ou comentário.
+- Não há borda brilhante/neon.
+- Não há contornos de cartões separados ao redor de cada comentário.
+- Não é possível medir raio de blur, spread de sombra ou opacidade alpha exata a partir dessas capturas reduzidas.
+
+11. HIERARQUIA Z
+
+Ordem visual inferida somente pela sobreposição aparente, da camada mais próxima do observador para a mais distante:
+1. Ícones, textos, avatar/header e controles interativos desenhados sobre a imagem.
+2. Lista de comentários, avatares de comentários, linha de apoio a badge e botão “Buy” na IMAGEM 2.
+3. Possível camada escura/gradiente de legibilidade sobre a parte inferior da imagem na IMAGEM 2. Não é possível determinar se é uma camada separada acima do vídeo ou parte já incorporada na imagem de captura.
+4. Conteúdo de câmera/vídeo.
+5. Faixas pretas da interface inferior, visualmente separadas da área de vídeo.
+
+Observação: esta hierarquia descreve apenas a composição visual. Não afirma a estrutura real de views, camadas de renderização ou componentes internos do aplicativo.
+
+12. LISTA COMPLETA DE ELEMENTOS VISÍVEIS
+
+IMAGEM 1:
+- Moldura/limites escuros estreitos ao redor da captura.
+- Prévia vertical de câmera com superfície clara cinza-bege.
+- Forma escura inclinada entrando pelo canto superior direito.
+- Avatar circular de perfil no topo esquerdo.
+- Nome “guia.do.celular”.
+- Pequena seta para baixo junto ao nome.
+- Selo rosa “AO VIVO”.
+- Pequeno símbolo pouco legível perto do lado direito do selo.
+- Botão X branco no topo direito.
+- Ícone de microfone.
+- Ícone de câmera de vídeo.
+- Ícone de setas curvas de alternância.
+- Ícone de brilhos/efeitos.
+- Faixa inferior preta.
+- Campo “Adicione um comentário.”
+- Ícone de vídeo com sinal de adição.
+- Ícone de pessoas com sinal de adição.
+- Ícone circular/balão com interrogação.
+- Ícone de avião de papel/envio.
+- Não há mais elementos legíveis com segurança.
+
+IMAGEM 2:
+- Vídeo de uma pessoa sorrindo, com bandana escura, cabelo preso, roupa escura, colares e braço levantado.
+- Fundo interno em tons quentes, com teto/parede e elementos de ambiente.
+- Avatar circular do perfil.
+- Nome “youngzee” e pequena seta.
+- Selo rosa “LIVE”.
+- Contador com ícone de espectadores e texto “1.5k”.
+- Botão X.
+- Comentário/nome apagado na parte superior da lista.
+- Comentário de “dark_emeralds” com “Good Morning!!”.
+- Comentário de “hey_sarah2002” sobre compra de badge, com pequenos símbolos rosas.
+- Comentário de “photosbyem” com “Getting ready to start my day!”.
+- Comentário de “travis_shreds18” com “So happy to catch this LIVE!”.
+- Pequenos avatares circulares à esquerda das mensagens.
+- Pequenos ícones/emblemas coloridos ao lado de algumas mensagens.
+- Texto “Buy a badge to support youngzee”.
+- Botão claro “Buy”.
+- Faixa inferior preta.
+- Campo “Comment”.
+- Ícone quadrado com interrogação.
+- Ícone de avião de papel/envio.
+- Ícone de coração contornado.
+
+13. COISAS QUE NÃO APARECEM (IMPORTANTE - NEGATIVO)
+
+IMAGEM 1:
+- Não aparece barra de status do Android legível.
+- Não aparecem hora, bateria, sinal móvel ou Wi-Fi.
+- Não aparece teclado virtual.
+- Não aparece lista de comentários.
+- Não aparece contador de espectadores numérico.
+- Não aparece botão “Buy”.
+- Não aparece coração ou coluna de reações na lateral.
+- Não aparece barra de navegação Android claramente identificável.
+- Não aparecem rótulos textuais sob os quatro ícones laterais.
+- Não aparecem botões circulares de fundo sob a régua lateral.
+- Não aparece painel opaco de header.
+- Não há título de transmissão separado do nome do perfil.
+- Não há evidência visual de animação/pulsação no selo “AO VIVO”.
+- Não há indicação visual inequívoca de microfone mutado.
+
+IMAGEM 2:
+- Não aparece a régua lateral de quatro ícones da IMAGEM 1.
+- Não aparece o texto “Adicione um comentário.”; o campo visível diz “Comment”.
+- Não aparece o conjunto de quatro ícones inferiores da IMAGEM 1.
+- Não aparece teclado.
+- Não aparece barra de status do sistema.
+- Não aparece uma lista de comentários com bolhas retangulares individuais claramente separadas.
+- Não aparece barra de rolagem.
+- Não aparece preço do badge.
+- Não é possível ver com clareza todos os caracteres do comentário/nome apagado na parte superior.
+- Não há prova visual de que o contador “1.5k” esteja pulsando ou atualizando.
+
+14. DÚVIDAS CRÍTICAS PARA RECONSTRUÇÃO FIEL
+
+Estas questões não podem ser resolvidas com certeza a partir dos arquivos recebidos. Para uma reconstrução pixel-perfect, seriam necessários os arquivos de captura em resolução nativa, sem redimensionamento ou compressão, e preferencialmente uma captura direta do aparelho.
+
+1. Qual é a resolução nativa original de cada imagem antes de ser anexada? Os arquivos atuais têm 380 x 744 px e 271 x 523 px.
+2. As imagens foram redimensionadas pelo aplicativo de mensagens, pelo navegador ou manualmente?
+3. A tela-alvo de 1080 x 2400 px corresponde à resolução de captura desejada ou apenas ao aparelho em que o aplicativo será implementado?
+4. Qual é a densidade real de pixels usada na captura? Sem isso, dp não pode ser convertido de modo confiável.
+5. O pequeno símbolo à direita do selo “AO VIVO” na IMAGEM 1 não é legível o bastante para nomeá-lo com segurança.
+6. A superfície clara da IMAGEM 1 é uma parede/objeto capturado pela câmera; não é possível determinar se há também algum ajuste de exposição, filtro ou tratamento de imagem.
+7. O escurecimento atrás dos comentários da IMAGEM 2 pode ser um gradiente da interface ou parte da própria imagem/captura. Não é possível medir a curva de gradiente.
+8. Os valores HEX são estimativas visuais; a compressão e o redimensionamento alteram pixels de borda, textos e cores.
+9. A fonte exata não pode ser identificada a partir dos glifos reduzidos.
+10. Não é possível medir com precisão os estados ativos/inativos de controles sem imagens adicionais ou indicações visuais inequívocas.
+11. A IMAGEM 1 e a IMAGEM 2 parecem usar escalas e/ou recortes diferentes. Não há base para impor uma mesma escala de pixels entre elas.
+12. Para declarar medidas de 1080 x 2400 px “exatas”, seria necessário confirmar se a interface original foi capturada nessa resolução. A simples multiplicação proporcional não prova que a interface usa esses tamanhos nativamente.
+
+15. MEDIÇÕES PRONTAS PARA CÓDIGO (COLA DIRETO)
+
+IMPORTANTE: este bloco contém valores aproximados medidos nos arquivos anexados, NÃO dimensões nativas comprovadas para 1080 x 2400 px. Use os valores como referência inicial e valide visualmente antes de tratar como pixel-perfect.
+
+IMAGEM 1 — arquivo de 380 x 744 px:
+- image_size: 380 x 744 px
+- camera_preview_bounds: x=6, y=5, width=367, height=663 px (aproximado)
+- bottom_bar_top: y=669 px (aproximado)
+- bottom_bar_height: 75 px (aproximado)
+- profile_avatar_bounds: x=20, y=15, width=30, height=31 px (aproximado)
+- profile_name_bounds: x=60, y=23, width=123, height=18 px (aproximado)
+- live_badge_bounds: x=219, y=15, width=68, height=33 px (aproximado)
+- unclear_top_symbol_center: x=307, y=31 px (aproximado; identidade não confirmada)
+- close_button_center: x=349, y=31 px (aproximado)
+- side_microphone_center: x=348, y=79 px (aproximado)
+- side_camera_center: x=348, y=122 px (aproximado)
+- side_switch_center: x=348, y=164 px (aproximado)
+- side_effects_center: x=348, y=207 px (aproximado)
+- comment_input_bounds: x=15, y=683, width=197, height=40 px (aproximado)
+- bottom_video_add_bounds: x=226, y=692, width=23, height=22 px (aproximado)
+- bottom_people_add_bounds: x=266, y=691, width=24, height=24 px (aproximado)
+- bottom_help_bounds: x=307, y=691, width=20, height=24 px (aproximado)
+- bottom_send_bounds: x=344, y=692, width=22, height=22 px (aproximado)
+- live_badge_color_estimate: #E90063 a #F00068
+- bottom_bar_color_estimate: #050505 a #0A0A0A
+- primary_text_estimate: #F2F2F2 a #FFFFFF
+- input_outline_estimate: #454545 a #666666
+
+IMAGEM 2 — arquivo de 271 x 523 px:
+- image_size: 271 x 523 px
+- video_area_bounds: x=0, y=0, width≈267, height≈447 px
+- bottom_bar_top: y≈448 px
+- bottom_bar_height: ≈75 px
+- profile_avatar_bounds: x≈7, y≈5, width≈18, height≈18 px
+- profile_name_bounds: x≈27, y≈9, width≈65, height≈12 px
+- live_badge_bounds: x≈165, y≈5, width≈30, height≈20 px
+- viewer_counter_bounds: x≈201, y≈5, width≈35, height≈20 px
+- close_button_center: x≈253, y≈15 px
+- comments_area_bounds: x≈7, y≈260, width≈253, height≈165 px (aproximado; sem painel delimitado)
+- comment_avatar_diameter: ≈20–23 px
+- badge_support_text_bounds: x≈7, y≈427, width≈178, height≈14 px (aproximado)
+- buy_button_bounds: x≈224, y≈426, width≈36, height≈20 px (aproximado)
+- comment_input_bounds: x≈10, y≈490, width≈149, height≈28 px
+- bottom_help_bounds: x≈176, y≈492, width≈19, height≈22 px
+- bottom_send_bounds: x≈207, y≈493, width≈19, height≈21 px
+- bottom_heart_bounds: x≈236, y≈493, width≈22, height≈21 px
+- live_badge_color_estimate: #E90063 a #F00068
+- bottom_bar_color_estimate: #030303 a #080808
+- buy_button_color_estimate: #D8D8D8 a #E7E7E7
+- counter_background_estimate: #333333 a #454545 misturado com a imagem
+
+ESCALA PARA A TELA-ALVO 1080 x 2400:
+- Não existe fator de escala único comprovado.
+- Se a largura da IMAGEM 1 fosse simplesmente escalada de 380 para 1080 px, o fator matemático seria 1080/380 ≈ 2,842. Porém a altura resultante seria 744 x 2,842 ≈ 2114 px, não 2400 px.
+- Se a altura fosse escalada de 744 para 2400 px, o fator seria 2400/744 ≈ 3,226. A largura resultante seria 380 x 3,226 ≈ 1226 px, não 1080 px.
+- Portanto, não escalar as duas dimensões simultaneamente sem confirmar recorte, letterboxing ou proporção original. O conteúdo não deve ser deformado para forçar a correspondência.
+- Para reconstrução fiel, preservar proporções e tratar coordenadas da tela-alvo como pendentes de confirmação.
+
+FIM DO DOCUMENTO

@@ -1,0 +1,146 @@
+================================================================================
+DOCUMENTAÇÃO TÉCNICA COMPLETA - StudioLive
+================================================================================
+VERSÃO........: 3.0.0
+PACOTE.........: com.studiolive.app
+IDIOMA.........: Português do Brasil (pt-BR)
+ALVO...........: Motorola Moto G84 5G (1080x2400 / 20:9)
+DATA...........: 27/10/2026
+REPOSITÓRIO....: https://github.com/MassayoshiOgawa/FakeStream
+WORKFLOW.......: .github/workflows/build-apk.yml (NÃO ALTERAR)
+================================================================================
+
+
+## 1. VISÃO GERAL
+StudioLive é um simulador de live no estilo do Parallel Live Simulator, com layout fiel 
+à análise visual (ANALISE_VISUAL_STUDIOLIVE.txt). 
+Recursos principais:
+- Tela AO VIVO com topo (avatar, nome, selo AO VIVO, contador de espectadores), régua lateral (microfone/câmera/alternar/efeitos) e barra inferior com campo "Adicione um comentário." + ícones
+- Simulador de espectadores com regulagem completa (mínimo/máximo/quantidade por incremento/intervalo)
+- Modo automático, iniciar/pausar/zerar, intervalo aleatório e incremento aleatório
+- Persistência com DataStore
+- 100% PT-BR
+
+
+## 2. ESTRUTURA DE PASTAS
+```
+StudioLive/
+├── app/
+│   ├── build.gradle.kts
+│   └── src/main/
+│       ├── AndroidManifest.xml
+│       ├── java/com/studiolive/app/
+│       │   ├── MainActivity.kt
+│       │   ├── core/
+│       │   ├── data/
+│       │   │   ├── model/Models.kt
+│       │   │   └── prefs/ (DataStore, PrefKeys, AppRepository)
+│       │   ├── navigation/NavGraph.kt
+│       │   ├── ui/
+│       │   │   ├── home/HomeScreen.kt
+│       │   │   ├── live/LiveScreen.kt
+│       │   │   ├── permissions/PermissionsScreen.kt
+│       │   │   ├── settings/SettingsScreen.kt
+│       │   │   └── settings/viewers/ViewerSimulatorScreen.kt
+│       │   │   └── theme/ (Color.kt, Theme.kt)
+│       │   └── viewmodel/MainViewModel.kt
+│       └── res/ (drawable, mipmap, values, xml)
+├── build.gradle.kts
+├── gradle.properties
+├── gradlew / gradlew.bat
+└── settings.gradle.kts
+```
+
+
+## 3. ARQUITETURA
+- **UI**: Jetpack Compose (Material3)
+- **Navegação**: Navigation Compose
+- **Estado**: StateFlow no MainViewModel
+- **Persistência**: DataStore Preferences
+- **Padrão**: Single Activity (MainActivity) + NavGraph
+- **Threading**: Coroutines
+
+
+## 4. SIMULADOR DE ESPECTADORES (PARALLEL LIVE SIMULATOR)
+Arquivos: data/model/Models.kt, data/prefs/*, viewmodel/MainViewModel.kt, ui/settings/viewers/ViewerSimulatorScreen.kt
+
+**Parâmetros:**
+- Ativar simulador
+- Iniciar automaticamente
+- Iniciar a partir do mínimo
+- Mínimo / Máximo
+- Quantidade por incremento OU incremento aleatório (mín./máx.)
+- Intervalo entre entradas (segundos) OU intervalo aleatório (mín./máx.)
+- Controles: Iniciar/Pausar, Parar, Zerar
+
+**Lógica:**
+O MainViewModel roda um coroutine com delay configurável. A cada ciclo adiciona um incremento (fixo ou aleatório) até chegar no máximo. Tudo salvo no DataStore e mantido após fechar o app.
+
+
+## 5. TELA AO VIVO
+Arquivo: ui/live/LiveScreen.kt
+Baseado na análise visual:
+- Topo: avatar circular, nome (displayName), seta, selo "AO VIVO" (magenta #E90063), contador com ícone de pessoas + "X.XXk", botão X (sai para Home)
+- Régua lateral direita: microfone (toggle mute), câmera, alternar câmera, efeitos
+- Área inferior: overlay de comentários estilo imagem 2 + barra com "Adicione um comentário." e 4 ícones
+- Contador formatado com "k" quando >= 1000
+
+
+## 6. CONFIGURAÇÕES
+Arquivo: ui/settings/SettingsScreen.kt
+- "Nome exibido no app" (salvo por onValueChange)
+- "Título da transmissão" (salvo por onValueChange)
+- "Regulagem de espectadores" -> abre tela dedicada
+
+
+## 7. PERSISTÊNCIA (DATASTORE)
+Nome: studiolive_prefs (mantido)
+Chaves principais: display_name, live_title, viewer_count, vsim_* , mic_muted, camera_front
+
+
+## 8. COMO ADICIONAR UM NOVO TOGGLE/CONFIGURAÇÃO
+1. Adicionar chave em PrefKeys.kt
+2. Adicionar campo no AppState e ler no AppRepository
+3. Adicionar setter no AppRepository
+4. Expor função no MainViewModel
+5. Adicionar UI na tela apropriada
+6. Testar persistência
+
+
+## 9. COMO ALTERAR O SIMULADOR DE VIEWERS
+Tudo centralizado em:
+- ViewerSimConfig (modelo)
+- MainViewModel.startViewerSim()/pauseViewerSim()/resetViewerSim()
+- ViewerSimulatorScreen (UI)
+
+
+## 10. COMPATIBILIDADE COM GITHUB ACTIONS
+O workflow atual faz:
+```yaml
+- name: Extrair projeto.zip
+  run: |
+    unzip -o projeto.zip
+    test -f gradlew
+    ...
+- name: Compilar APK debug
+  run: |
+    chmod +x gradlew
+    ./gradlew assembleDebug --no-daemon --stacktrace
+```
+**IMPORTANTE:** `projeto.zip` deve ter o projeto na RAIZ (pastas gradlew, app/, settings.gradle.kts etc diretamente na raiz do zip).
+
+
+## 11. VERSÃO E BUILD
+app/build.gradle.kts:
+- versionCode = 3
+- versionName = "3.0.0"
+- compileSdk = 34, minSdk = 24, targetSdk = 34, JVM 17
+
+
+## 12. DICAS PARA FUTURAS ALTERAÇÕES
+- Para mudar visual da live: editar ui/live/LiveScreen.kt
+- Para mudar simulador: editar viewer screens + MainViewModel
+- Para mudar cores: ui/theme/Color.kt
+- Para adicionar telas: criar em ui/ e adicionar no NavGraph.kt
+- Sempre manter PT-BR e "AO VIVO"
+- Testar no emulador 1080x2400 (20:9) ou Moto G84 5G

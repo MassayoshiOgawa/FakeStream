@@ -1,0 +1,174 @@
+================================================================================
+BRIEFING PARA CHATGPT — ANÁLISE VISUAL PURA DAS IMAGENS
+================================================================================
+
+PROJETO........: StudioLive (Análise para reconstrução exata)
+OBJETIVO.......: Gerar APENAS um arquivo TXT com descrição visual minuciosa
+SAÍDA OBRIGATÓRIA: ANALISE_VISUAL_STUDIOLIVE.txt
+IDIOMA........: Português do Brasil (pt-BR)
+ALVO...........: MOTOROLA MOTO G84 5G — 1080 x 2400 px / 20:9 / ~411dp
+IMAGENS........: IMAGEM 1 (tela principal AO VIVO) + IMAGEM 2 (comentários + espectadores)
+NÃO FAÇA........: APK, pasta, projeto.zip, código, documentação para IA, build, GitHub
+================================================================================
+
+
+## 0. REGRA ZERO
+
+Você NÃO irá gerar código, APK, estrutura de pastas, arquivos Kotlin/Compose, 
+gradle, zip ou qualquer coisa executável.
+
+Sua ÚNICA tarefa é produzir UM arquivo `.txt` com a análise visual mais 
+detalhada possível das DUAS imagens enviadas.
+
+Sem imagens anexadas, NÃO comece. Responda apenas dizendo: 
+"Envie IMAGEM 1 (tela principal AO VIVO) e IMAGEM 2 (comentários + espectadores) para iniciar a análise visual."
+
+
+## 1. MISSÃO
+
+Gerar `ANALISE_VISUAL_STUDIOLIVE.txt` contendo:
+
+- Medidas em pixels (px) OBRIGATORIAMENTE. Também converta para dp quando for óbvio.
+- Posicionamento exato (top/bottom/start/end, margens, paddings).
+- Cores exatas (hex #RRGGBB ou #AARRGGBB quando houver transparência/vidro).
+- Tipografia (tamanho em sp/px, peso, cor, alinhamento, line-height se perceptível).
+- Efeitos (blur, vidro/fosco, gradiente, borda, sombra, brilho, scrim).
+- Geometria (círculo/quadrado/retângulo/arredondamento em px/dp).
+- Hierarquia Z (o que fica por cima do que).
+- Estados visuais (ativado/desativado/mudo/pulsando).
+- Tudo visível, pixel por pixel.
+
+
+## 2. SEPARAÇÃO DAS IMAGENS
+
+### IMAGEM 1 — TELA PRINCIPAL "AO VIVO" (VERDADE ABSOLUTA)
+Use como FONTE ÚNICA para:
+- Layout geral da tela ao vivo
+- Camera preview
+- Top bar (avatar, nome, título, selo AO VIVO, contador, botões superiores)
+- Régua lateral/direita de ações
+- Botões inferiores / barra / "comprar"
+- Qualquer elemento da tela ao vivo
+- Visibilidade real (se existe ou não)
+
+### IMAGEM 2 — COMENTÁRIOS + ESPECTADORES (VERDADE ABSOLUTA)
+Use como FONTE ÚNICA para:
+- Aparência exata dos comentários
+- Lista de comentários (bolhas, fundo, textos, avatares)
+- Área do "adicionar/comentar"
+- Contador de espectadores e seu visual
+- Qualquer detalhe específico APENAS desta seção
+- Espaçamento entre comentários
+- Comportamento visual percebido (transparência, blur, etc)
+
+NUNCA misture suposições. Se não consegue medir com exatidão, PERGUNTE.
+
+
+## 3. O QUE DEVE SER ANALISADO EM DETALHES
+
+Seja EXTREMAMENTE minucioso. Analise item por item.
+
+### 3.1 TELA GERAL
+- Proporção, safe areas, status bar area (está visível ou não?)
+- Fundo: é puramente câmera ao vivo ou tem overlay?
+- Há algum scrim/gradiente superior/inferior?
+- Há blur/vitrificação ("vidro") em algum elemento?
+
+### 3.2 TOPO / HEADER
+Descreva CADA elemento:
+- Avatar circular (tamanho exato, borda, cor da borda, placeholder)
+- Nome exibido ao lado
+- "Título da transmissão" ao lado/abaixo? Em uma ou duas linhas?
+- Selo "AO VIVO" (formato, cor de fundo, texto, raio, padding)
+- Contador de espectadores (ícone? só número? formato ex: 1.5k)
+- Botão X / fechar
+- Outros botões superiores
+- Alinhamentos, gaps horizontais/verticais
+
+### 3.3 RÉGUA DE AÇÕES (LADO DIREITO)
+- Quantos botões EXATAMENTE aparecem?
+- Ordem vertical exata (de cima para baixo)
+- Tamanho de cada botão (círculo/oval)
+- Ícones (descreva forma, traços, preenchimento)
+- Espaçamento entre eles
+- Distância da borda direita
+- Distância do topo/rodapé
+- Algum botão maior/diferente?
+- Há efeito de vidro/blur no botão?
+- Estados visuais (mute ativo/inativo)
+
+### 3.4 PARTE INFERIOR
+- Há barra inferior? Comprar? Adicionar vídeo/pessoa?
+- Botão "Comentar" / área para comentar?
+- Reações?
+- Distância da borda inferior
+- Há separação ou estão colados?
+
+### 3.5 COMENTÁRIOS (APENAS IMAGEM 2)
+- Área da lista: largura, altura aproximada visível
+- Fundo da lista/bolhas: cor, transparência, blur?
+- Avatar do comentário (tamanho)
+- Nome + texto
+- Espaçamento entre itens
+- Scroll? Mostra quantos visíveis?
+- Input "Adicione um comentário" exato visual
+- Botão enviar (se existir)
+- Máscaras/gradientes para fade?
+
+### 3.6 ELEMENTOS GERAIS
+- Tipografia: identifique família percebida ou descreva peso/forma
+- Ícones: minimalistas/filled/outlined
+- Arredondamentos: 999/24/16/12 etc
+- Sombras: cor/blur/spread/deslocamento
+- Vidro: opacidade + desfoque percebido
+- Paleta completa usada
+
+
+## 4. FORMATO EXATO DA SAÍDA
+
+Crie `ANALISE_VISUAL_STUDIOLIVE.txt` COM ESTA ESTRUTURA:
+
+TITULO: ANALISE VISUAL DETALHADA - StudioLive
+BASE: Motorola Moto G84 5G (1080x2400, 20:9)
+FONTE: IMAGEM 1 + IMAGEM 2
+
+SEÇÕES OBRIGATÓRIAS:
+
+1. VISÃO GERAL
+2. MEDIDAS DE REFERÊNCIA (px + dp estimado)
+3. TOPOBAR - BLOCOS SUPERIORES
+4. RÉGUA DE AÇÕES LATERAL
+5. ÁREA INFERIOR / BARRA
+6. COMENTÁRIOS E CONTADOR (BASEADO NA IMAGEM 2)
+7. PALETA DE CORES (HEX)
+8. TIPOGRAFIA (TAMANHOS/PESOS/CORES)
+9. ESPAÇAMENTOS E GAPS
+10. EFEITOS (VIDRO/BLUR/GRADIENTE/BORDA/SOMBRA)
+11. HIERARQUIA Z
+12. LISTA COMPLETA DE ELEMENTOS VISÍVEIS
+13. COISAS QUE NÃO APARECEM (IMPORTANTE - NEGATIVO)
+14. DÚVIDAS CRÍTICAS PARA RECONSTRUÇÃO FIEL
+15. MEDIÇÕES PRONTAS PARA CÓDIGO (COLA DIRETO)
+
+SEJA EXPLÍCITO. Use termos como "exatamente", "visível", "não visível".
+NUNCA diga "provavelmente". Se incerto -> coloque em "DÚVIDAS CRÍTICAS".
+
+
+## 5. DIRETRIZES PARA SER EXIGENTE
+
+- Meça, não adivinhe. Se algo é difícil de medir, peça ângulo/zoom mental ou pergunte.
+- Liste CADA botão visível individualmente com posição aproximada por porcentagem OU coordenadas relativas.
+- Foque em FIDELIDADE ABSOLUTA. Pixel-perfect importa.
+- Priorize o que REALMENTE aparece nas imagens.
+- Seja brutalmente detalhado em efeitos de vidro/neon/blur.
+- Não descreva funcionalidade. Descreva APENAS aparência visual.
+- Não invente elementos que não existem nas imagens.
+- Não escreva "padrão Instagram" genérico. Descreva EXATAMENTE o que vê.
+
+
+## 6. INSTRUÇÃO FINAL
+
+Comece AGORA analisando as duas imagens com este rigor máximo.
+Gere APENAS o arquivo `ANALISE_VISUAL_STUDIOLIVE.txt`.
+Não crie pastas. Não gere código. Seja pedante, preciso e exaustivo.
+Se houver QUALQUER ambiguidade que impeça reconstrução fiel, pergunte ANTES de finalizar o documento.
